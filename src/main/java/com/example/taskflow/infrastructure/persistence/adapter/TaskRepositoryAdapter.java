@@ -7,6 +7,8 @@ import com.example.taskflow.infrastructure.persistence.entity.TaskEntity;
 import com.example.taskflow.infrastructure.persistence.mapper.TaskEntityMapper;
 import com.example.taskflow.infrastructure.persistence.repository.JpaTaskRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,15 +27,29 @@ public class TaskRepositoryAdapter implements TaskRepository {
     }
 
     @Override
-    public Optional<Task> findById(Long id){
+    public Optional<Task> findById(Long id) {
         return jpaTaskRepository.findById(id)
                 .map(TaskEntityMapper::toDomain);
     }
+
     @Override
-    public List<Task> findByStatus(TaskStatus status){
+    public List<Task> findByStatus(TaskStatus status) {
         return jpaTaskRepository.findByStatus(status)
                 .stream()
                 .map(TaskEntityMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public Page<Task> findTasks(Pageable pageable, TaskStatus status) {
+        Page<TaskEntity> taskPage;
+        if (status != null) {
+            taskPage = jpaTaskRepository.findByStatus(status, pageable);
+        } else {
+            taskPage = jpaTaskRepository.findAll(pageable);
+        }
+
+        return taskPage.map(TaskEntityMapper::toDomain);
+    }
+
 }

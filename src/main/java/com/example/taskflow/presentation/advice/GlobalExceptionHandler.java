@@ -2,6 +2,7 @@ package com.example.taskflow.presentation.advice;
 
 import com.example.taskflow.domain.exception.InvalidTaskStateException;
 import com.example.taskflow.domain.exception.MaxRetryLimitExceededException;
+import com.example.taskflow.domain.exception.TaskNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -58,6 +59,19 @@ public class GlobalExceptionHandler {
         );
         problemDetail.setTitle("Retry Limit Exceeded");
         problemDetail.setType(URI.create("/errors/retry-limit"));
+        problemDetail.setProperty("timestamp", Instant.now());
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ProblemDetail handleTaskNotFoundException(TaskNotFoundException ex){
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+        problemDetail.setTitle("Task Not Found");
+        problemDetail.setType(URI.create("/error/task-not-found"));
         problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;

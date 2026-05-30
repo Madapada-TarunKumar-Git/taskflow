@@ -4,10 +4,11 @@ import com.example.taskflow.domain.enums.TaskPriority;
 import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.domain.enums.TaskType;
 import com.example.taskflow.domain.exception.InvalidTaskStateException;
-import com.example.taskflow.domain.exception.MaxRetryLimitExceedException;
+import com.example.taskflow.domain.exception.MaxRetryLimitExceededException;
 import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 @Getter
@@ -17,13 +18,31 @@ public class Task {
     private String taskName;
     private String description;
     private TaskType taskType;
+    @Setter
     private TaskStatus status;
     private TaskPriority priority;
     private int retryCount;
     private String createdBy;
     private String failureReason;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
+
+    @Setter
+    private String originalFileName;
+    @Setter
+    private String storedFileName;
+    @Setter
+    private String filePath;
+    @Setter
+    private Long fileSize;
+
+    private Integer totalRecords;
+    private Integer successRecords;
+    private Integer failedRecords;
+
+    private Instant processingStartedAt;
+    private Instant processingCompletedAt;
+
 
     public Task(
             String taskName,
@@ -41,13 +60,17 @@ public class Task {
 
         this.status = TaskStatus.CREATED;
         this.retryCount = 0;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
+
+        this.totalRecords = 0;
+        this.successRecords = 0;
+        this.failedRecords = 0;
     }
 
     public static Task restore(Long id, String taskName, String desc, TaskType taskType,
                                TaskStatus status, TaskPriority priority, int retryCount,
-                               String createdBy, LocalDateTime createdAt, LocalDateTime updatedAt, String failureReason) {
+                               String createdBy, Instant createdAt, Instant updatedAt, String failureReason) {
         Task task = new Task(
                 taskName,
                 desc,
@@ -75,8 +98,6 @@ public class Task {
 
     public void markAsProcessing() {
         validateCurrentStatus(TaskStatus.VALIDATING);
-        ;
-
         this.status = TaskStatus.PROCESSING;
         updateTimestamp();
     }
@@ -98,9 +119,15 @@ public class Task {
         updateTimestamp();
     }
 
+    public void markAsFileUploaded(){
+        validateCurrentStatus(TaskStatus.CREATED);
+        this.status = TaskStatus.FILE_UPLOADED;
+        updateTimestamp();
+    }
+
     public void incrementRetryCount() {
         if (this.retryCount >= MAX_RETRY_COUNT) {
-            throw new MaxRetryLimitExceedException("Maximum retry limit exceeded");
+            throw new MaxRetryLimitExceededException("Maximum retry limit exceeded");
         }
 
         this.retryCount++;
@@ -124,6 +151,6 @@ public class Task {
     }
 
     private void updateTimestamp() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 }

@@ -4,7 +4,7 @@ import com.example.taskflow.domain.enums.TaskPriority;
 import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.domain.enums.TaskType;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record TaskResponseDto(
         Long id,
@@ -15,6 +15,6 @@ public record TaskResponseDto(
         TaskPriority priority,
         int retryCount,
         String createdBy,
-        LocalDateTime createdAt
+        Instant createdAt
 ) {
 }
