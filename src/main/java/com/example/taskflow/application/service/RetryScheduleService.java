@@ -1,5 +1,6 @@
 package com.example.taskflow.application.service;
 
+import com.example.taskflow.domain.enums.TaskAuditAction;
 import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.domain.model.Task;
 import com.example.taskflow.domain.repository.TaskRepository;
@@ -15,6 +16,7 @@ import java.util.List;
 @Slf4j
 public class RetryScheduleService {
     private final TaskRepository taskRepository;
+    private final TaskAuditService taskAuditService;
 
     @Scheduled(fixedDelay = 60000) // 60 seconds
     public  void retryFailedTasks(){
@@ -24,7 +26,9 @@ public class RetryScheduleService {
 
         log.info("Found {} retry pending tasks",retryTasks.size());
         for (Task task : retryTasks) {
+            TaskStatus beforeQueued = task.getStatus();
             task.markAsQueued();
+            taskAuditService.logTaskEvent(task, TaskAuditAction.TASK_RE_QUEUED, beforeQueued, task.getStatus(), "Task Re-Queued", "System");
             taskRepository.save(task);
             log.info("Task re-queued for retry: {}", task.getId());
         }

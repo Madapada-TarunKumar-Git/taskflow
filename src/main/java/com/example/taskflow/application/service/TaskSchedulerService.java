@@ -1,5 +1,6 @@
 package com.example.taskflow.application.service;
 
+import com.example.taskflow.domain.enums.TaskAuditAction;
 import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.domain.model.Task;
 import com.example.taskflow.domain.repository.TaskRepository;
@@ -18,6 +19,7 @@ import java.util.List;
 public class TaskSchedulerService {
     private final TaskRepository taskRepository;
     private final AsyncTaskProcessorService asyncTaskProcessorService;
+    private final TaskAuditService taskAuditService;
 
     @Scheduled(fixedDelay = 30000) // 30 Seconds
     public void processQueuedTasks() {
@@ -31,6 +33,7 @@ public class TaskSchedulerService {
 
         for (Task task : queuedTasks) {
             boolean taskClaimedSuccessfully  = taskRepository.claimTaskForProcessing(task.getId());
+            taskAuditService.logTaskEvent(task, TaskAuditAction.PROCESSING_STARTED,TaskStatus.QUEUED, TaskStatus.PROCESSING,"Claimed for processing","System");
             // if taskClaimedSuccessfully = true ( means 1 == 1 rows updated)
             if (!taskClaimedSuccessfully ) { // !false = true ; means the task already updated to process
                 log.info("Task already claimed: {}", task.getId());

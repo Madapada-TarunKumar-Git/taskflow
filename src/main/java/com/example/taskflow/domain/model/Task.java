@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Objects;
 
 @Getter
@@ -18,7 +19,6 @@ public class Task {
     private String taskName;
     private String description;
     private TaskType taskType;
-    @Setter
     private TaskStatus status;
     private TaskPriority priority;
     private int retryCount;
@@ -133,16 +133,6 @@ public class Task {
         updateTimestamp();
     }
 
-    public void markAsFailed(String reason) {
-        if (reason == null || reason.isBlank()) {
-            throw new IllegalArgumentException("Failure reason cannot be empty");
-        }
-
-        this.status = TaskStatus.FAILED;
-        this.failureReason = reason;
-        updateTimestamp();
-    }
-
     public void markAsFileUploaded() {
         validateCurrentStatus(TaskStatus.CREATED);
         this.status = TaskStatus.FILE_UPLOADED;
@@ -150,14 +140,9 @@ public class Task {
     }
 
     public void markAsQueued() {
-//        validateCurrentStatus(TaskStatus.FILE_UPLOADED);
-        if (this.status == TaskStatus.FILE_UPLOADED
-                || this.status == TaskStatus.RETRY_PENDING) {
+        validateCurrentStatus(TaskStatus.FILE_UPLOADED,TaskStatus.RETRY_PENDING);
             this.status = TaskStatus.QUEUED;
             updateTimestamp();
-            return;
-        }
-        throw new InvalidTaskStateException("Task cannot be queued from status: " + this.status);
     }
 
     public void markAsRetryPending() {
@@ -167,29 +152,17 @@ public class Task {
     }
 
     public void markAsPermanentFailure(String reason) {
+        validateCurrentStatus(TaskStatus.PROCESSING);
         this.status = TaskStatus.PERMANENT_FAILURE;
         this.failureReason = reason;
+        this.processingCompletedAt = Instant.now();
         updateTimestamp();
     }
 
     public void incrementRetryCount() {
-//        if (this.retryCount >= MAX_RETRY_COUNT) {
-//            throw new MaxRetryLimitExceededException("Maximum retry limit exceeded");
-//        }
-
         this.retryCount++;
         updateTimestamp();
     }
-
-//    public void validateCurrentStatus(TaskStatus expectedStatus) {
-//        if (this.status != expectedStatus) {
-//            throw new InvalidTaskStateException("Invalid task state transition from"
-//                    + this.status
-//                    + "to"
-//                    + expectedStatus);
-//        }
-//
-//    }
 
     public boolean hasReachedMaxRetryLimit() {
         return this.retryCount >= Task.MAX_RETRY_COUNT;
@@ -202,6 +175,8 @@ public class Task {
 
         throw new InvalidTaskStateException("Invalid task state transition from "
                 + this.status
+                + " . Allowed statuses: "
+                + Arrays.toString(allowedStatuses)
         );
     }
 
