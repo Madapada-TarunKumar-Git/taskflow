@@ -20,11 +20,20 @@ public final class TaskEntityMapper {
         entity.setCreatedAt(task.getCreatedAt());
         entity.setUpdatedAt(task.getUpdatedAt());
         entity.setFailureReason(task.getFailureReason());
+        entity.setOriginalFileName(task.getOriginalFileName());
+        entity.setStoredFileName(task.getStoredFileName());
+        entity.setFilePath(task.getFilePath());
+        entity.setFileSize(task.getFileSize());
+        entity.setTotalRecords(task.getTotalRecords());
+        entity.setSuccessRecords(task.getSuccessRecords());
+        entity.setFailedRecords(task.getFailedRecords());
+        entity.setProcessingStartedAt(task.getProcessingStartedAt());
+        entity.setProcessingCompletedAt(task.getProcessingCompletedAt());
 
         return entity;
     }
 
-    public static Task toDomain(TaskEntity entity){
+    public static Task toDomain(TaskEntity entity) {
         return Task.restore(
                 entity.getId(),
                 entity.getTaskName(),
@@ -36,7 +45,16 @@ public final class TaskEntityMapper {
                 entity.getCreatedBy(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
-                entity.getFailureReason()
+                entity.getFailureReason(),
+                entity.getOriginalFileName(),
+                entity.getStoredFileName(),
+                entity.getFilePath(),
+                entity.getFileSize(),
+                entity.getTotalRecords(),
+                entity.getSuccessRecords(),
+                entity.getFailedRecords(),
+                entity.getProcessingStartedAt(),
+                entity.getProcessingCompletedAt()
         );
     }
 }
