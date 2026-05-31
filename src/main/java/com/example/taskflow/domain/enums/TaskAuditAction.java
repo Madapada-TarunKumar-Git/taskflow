@@ -1,0 +1,16 @@
+package com.example.taskflow.domain.enums;
+
+public enum TaskAuditAction {
+    TASK_CREATED,
+    FILE_UPLOADED,
+    TASK_QUEUED,
+    TASK_RE_QUEUED,
+    PROCESSING_STARTED,
+    PROCESSING_PARTIALLY_COMPLETED,
+    PROCESSING_COMPLETED,
+    PROCESSING_FAILED,
+    RETRY_TRIGGERED,
+    STATUS_CHANGED,
+    TASK_FAILED,
+    TASK_COMPLETED
+}

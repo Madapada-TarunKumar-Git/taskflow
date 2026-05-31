@@ -3,6 +3,8 @@ package com.example.taskflow.application.service;
 import com.example.taskflow.application.command.CreateTaskCommand;
 import com.example.taskflow.application.command.UploadTaskCommand;
 import com.example.taskflow.application.dto.TaskProcessingResultDto;
+import com.example.taskflow.domain.enums.TaskAuditAction;
+import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.presentation.response.TaskProcessingResponseDto;
 import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.application.mapper.TaskMapper;
@@ -28,6 +30,7 @@ public class TaskCommandService implements TaskCommandUseCase {
     private final FileStoragePort fileStoragePort;
     private final TaskFileValidator taskFileValidator;
     private final CustomerCsvProcessingService customerCsvProcessingService;
+    private final TaskAuditService taskAuditService;
 
     @Override
     public TaskResponseDto createTask(CreateTaskCommand command) {
@@ -40,6 +43,11 @@ public class TaskCommandService implements TaskCommandUseCase {
         );
 
         Task savedTask = taskRepository.save(task);
+        taskAuditService.logTaskEvent(savedTask, TaskAuditAction.TASK_CREATED,
+                null, savedTask.getStatus(),
+                "Task created",
+                "System"
+        );
 
         return TaskMapper.toResponseDto(savedTask);
     }
@@ -61,9 +69,20 @@ public class TaskCommandService implements TaskCommandUseCase {
         task.setStoredFileName(fileUploadResult.storedFilename());
         task.setFilePath(fileUploadResult.filePath());
         task.setFileSize(fileUploadResult.fileSize());
+
+        TaskStatus beforeFileUpload = task.getStatus();
         task.markAsFileUploaded();
+
+        TaskStatus beforeQueue = task.getStatus();
         task.markAsQueued();
+
         Task savedTask = taskRepository.save(task);
+
+        taskAuditService.logTaskEvent(savedTask, TaskAuditAction.FILE_UPLOADED, beforeFileUpload,
+                TaskStatus.FILE_UPLOADED, "File Uploaded", "System");
+        taskAuditService.logTaskEvent(savedTask, TaskAuditAction.TASK_QUEUED, beforeQueue,
+                TaskStatus.QUEUED, "Task Queued for processing", "System");
+
 
         return TaskMapper.toResponseDto(savedTask);
     }
@@ -80,19 +99,25 @@ public class TaskCommandService implements TaskCommandUseCase {
                     result.failedRecords()
             );
 
+            TaskStatus beforeCompletion = task.getStatus();
             if (result.failedRecords() > 0) {
                 task.markAsPartiallyCompleted();
+                taskAuditService.logTaskEvent(task, TaskAuditAction.PROCESSING_PARTIALLY_COMPLETED, beforeCompletion, task.getStatus(), "Processing partially completed", "System");
             } else {
                 task.markAsCompleted();
+                taskAuditService.logTaskEvent(task, TaskAuditAction.TASK_COMPLETED, beforeCompletion, task.getStatus(), "Processing completed", "System");
             }
         } catch (Exception ex) {
             log.info("Task processing failed for: {}", taskId, ex);
+            TaskStatus beforeFailure = task.getStatus();
             task.incrementRetryCount();
             if (task.hasReachedMaxRetryLimit()) {
                 log.info("Retry exceeded maximum limit for task: {}", taskId, ex);
                 task.markAsPermanentFailure(ex.getMessage());
+                taskAuditService.logTaskEvent(task, TaskAuditAction.TASK_FAILED, beforeFailure, task.getStatus(), "Processing failed permanently as the retry limit exceeded", "System");
             } else {
                 task.markAsRetryPending();
+                taskAuditService.logTaskEvent(task, TaskAuditAction.RETRY_TRIGGERED, beforeFailure, task.getStatus(), "Processing failed", "System");
             }
         }
         taskRepository.save(task);
