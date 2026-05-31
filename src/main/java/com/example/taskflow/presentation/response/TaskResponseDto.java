@@ -1,4 +1,4 @@
-package com.example.taskflow.application.dto;
+package com.example.taskflow.presentation.response;
 
 import com.example.taskflow.domain.enums.TaskPriority;
 import com.example.taskflow.domain.enums.TaskStatus;

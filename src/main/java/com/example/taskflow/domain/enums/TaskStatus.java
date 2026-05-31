@@ -10,5 +10,6 @@ public enum TaskStatus {
     COMPLETED,
     PARTIALLY_COMPLETED,
     FAILED,
-    RETRY_PENDING
+    RETRY_PENDING,
+    PERMANENT_FAILURE
 }

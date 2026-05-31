@@ -1,6 +1,6 @@
 package com.example.taskflow.application.service;
 
-import com.example.taskflow.application.dto.TaskResponseDto;
+import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.application.mapper.TaskMapper;
 import com.example.taskflow.application.usecase.TaskQueryUseCase;
 import com.example.taskflow.domain.enums.TaskStatus;

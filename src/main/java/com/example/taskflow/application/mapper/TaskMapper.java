@@ -1,6 +1,8 @@
 package com.example.taskflow.application.mapper;
 
-import com.example.taskflow.application.dto.TaskResponseDto;
+import com.example.taskflow.application.dto.TaskProcessingResultDto;
+import com.example.taskflow.presentation.response.TaskProcessingResponseDto;
+import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.domain.model.Task;
 import com.example.taskflow.shared.response.PageResponse;
 import org.springframework.data.domain.Page;
@@ -36,4 +38,15 @@ public final class TaskMapper {
                 taskPage.isLast()
         );
     }
+
+//    public static TaskProcessingResponseDto toTaskProcessingResponseDto(Task task, TaskProcessingResultDto result) {
+//        return new TaskProcessingResponseDto(
+//                task.getId(),
+//                task.getStatus(),
+//                result.totalRecords(),
+//                result.successfulRecords(),
+//                result.failedRecords(),
+//                result.errors()
+//        );
+//    }
 }

@@ -52,4 +52,11 @@ public class TaskRepositoryAdapter implements TaskRepository {
         return taskPage.map(TaskEntityMapper::toDomain);
     }
 
+    @Override
+    public boolean claimTaskForProcessing(Long taskId) {
+        int UpdatedRows = jpaTaskRepository.claimTaskForProcessing(
+                taskId, TaskStatus.QUEUED, TaskStatus.PROCESSING);
+        return UpdatedRows == 1;
+    }
+
 }

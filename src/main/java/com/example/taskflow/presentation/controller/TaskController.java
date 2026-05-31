@@ -1,7 +1,8 @@
 package com.example.taskflow.presentation.controller;
 
 import com.example.taskflow.application.command.UploadTaskCommand;
-import com.example.taskflow.application.dto.TaskResponseDto;
+import com.example.taskflow.presentation.response.TaskProcessingResponseDto;
+import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.application.usecase.TaskCommandUseCase;
 import com.example.taskflow.application.usecase.TaskQueryUseCase;
 import com.example.taskflow.domain.enums.TaskPriority;
@@ -96,4 +97,12 @@ public class TaskController {
                         ApiResponse.success("Task uploaded successfully", response)
                 );
     }
+
+//    @PostMapping("{taskId}/process")
+//    public ResponseEntity<ApiResponse<TaskProcessingResponseDto>> processTask(@PathVariable Long taskId){
+//        TaskProcessingResponseDto response = taskCommandUseCase.processTask(taskId);
+//        return ResponseEntity.ok(
+//                ApiResponse.success("Task processed successfully",response)
+//        );
+//    }
 }

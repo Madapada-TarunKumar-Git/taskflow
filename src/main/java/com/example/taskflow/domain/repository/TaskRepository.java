@@ -16,4 +16,6 @@ public interface TaskRepository {
     List<Task> findByStatus(TaskStatus status);
 
     Page<Task> findTasks(Pageable pageable, TaskStatus status);
+
+    boolean claimTaskForProcessing(Long taskId);
 }

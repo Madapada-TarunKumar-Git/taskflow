@@ -1,6 +1,6 @@
 package com.example.taskflow.application.usecase;
 
-import com.example.taskflow.application.dto.TaskResponseDto;
+import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.shared.response.PageResponse;
 

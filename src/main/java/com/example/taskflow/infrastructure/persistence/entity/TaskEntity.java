@@ -49,5 +49,32 @@ public class TaskEntity {
 
     private String failureReason;
 
+    @Column(name = "original_file_name")
+    private String originalFileName;
+
+    @Column(name = "stored_file_name")
+    private String storedFileName;
+
+    @Column(name = "file_path")
+    private String filePath;
+
+    @Column(name = "file_size")
+    private Long fileSize;
+
+    @Column(name = "total_records")
+    private Integer totalRecords;
+
+    @Column(name = "success_records")
+    private Integer successRecords;
+
+    @Column(name = "failed_records")
+    private Integer failedRecords;
+
+    @Column(name = "processing_started_at")
+    private Instant processingStartedAt;
+
+    @Column(name = "processing_completed_at")
+    private Instant processingCompletedAt;
+
     public TaskEntity(){}
 }
