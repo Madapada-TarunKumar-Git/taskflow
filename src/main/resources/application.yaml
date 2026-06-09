@@ -18,3 +18,18 @@ spring:
 
 server:
   port: 7600
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+    operationsSorter: method
+    tagsSorter: alpha
+
+  api-docs:
+    path: /api-docs
+
+logging:
+  level:
+    root: INFO
+  file:
+    name: logs/tasks.log

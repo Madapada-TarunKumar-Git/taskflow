@@ -25,11 +25,11 @@ public class TaskAuditEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TaskStatus oldStatus;
+    private TaskStatus fromStatus;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TaskStatus newStatus;
+    private TaskStatus toStatus;
 
     @Column(columnDefinition = "TEXT")
     private String message;

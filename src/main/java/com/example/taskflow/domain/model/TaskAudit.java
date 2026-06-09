@@ -4,17 +4,19 @@ import com.example.taskflow.domain.enums.TaskAuditAction;
 import com.example.taskflow.domain.enums.TaskStatus;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Instant;
 
 @Getter
+@ToString
 public class TaskAudit {
     @Setter
     private Long id;
     private Long taskId;
     private TaskAuditAction action;
-    private TaskStatus oldStatus;
-    private TaskStatus newStatus;
+    private TaskStatus fromStatus;
+    private TaskStatus toStatus;
     private String message;
     private String performedBy;
     private Instant createdAt;
@@ -22,8 +24,8 @@ public class TaskAudit {
     public TaskAudit(
             Long taskId,
             TaskAuditAction action,
-            TaskStatus oldStatus,
-            TaskStatus newStatus,
+            TaskStatus fromStatus,
+            TaskStatus toStatus,
             String message,
             String performedBy
     ) {
@@ -31,8 +33,8 @@ public class TaskAudit {
 
         this.taskId = taskId;
         this.action = action;
-        this.oldStatus = oldStatus;
-        this.newStatus = newStatus;
+        this.fromStatus = fromStatus;
+        this.toStatus = toStatus;
         this.message = message;
         this.performedBy = performedBy;
         this.createdAt = Instant.now();

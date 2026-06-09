@@ -1,5 +1,6 @@
 package com.example.taskflow.application.service;
 
+import com.example.taskflow.application.dto.StatusResponse;
 import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.application.mapper.TaskMapper;
 import com.example.taskflow.application.usecase.TaskQueryUseCase;
@@ -46,6 +47,19 @@ public class TaskQueryService implements TaskQueryUseCase {
                 .toList();
 
         return TaskMapper.toPageResponse(content,taskPage);
+    }
+
+    @Override
+    public StatusResponse getTaskStatistics() {
+        return new StatusResponse(
+                taskRepository.countAll(),
+                taskRepository.countTasks(TaskStatus.COMPLETED),
+                taskRepository.countTasks(TaskStatus.PROCESSING),
+                taskRepository.countTasks(TaskStatus.FAILED),
+                taskRepository.countTasks(TaskStatus.RETRY_PENDING),
+                taskRepository.countTasks(TaskStatus.QUEUED),
+                taskRepository.countTasks(TaskStatus.CREATED)
+        );
     }
 
 }

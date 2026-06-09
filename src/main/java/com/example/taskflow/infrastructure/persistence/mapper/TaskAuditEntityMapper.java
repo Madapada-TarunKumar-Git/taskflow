@@ -13,8 +13,8 @@ public final class TaskAuditEntityMapper {
         entity.setId(taskAudit.getId());
         entity.setTaskId(taskAudit.getTaskId());
         entity.setAction(taskAudit.getAction());
-        entity.setOldStatus(taskAudit.getOldStatus());
-        entity.setNewStatus(taskAudit.getNewStatus());
+        entity.setFromStatus(taskAudit.getFromStatus());
+        entity.setToStatus(taskAudit.getToStatus());
         entity.setMessage(taskAudit.getMessage());
         entity.setCreatedAt(taskAudit.getCreatedAt());
         entity.setPerformedBy(taskAudit.getPerformedBy());
@@ -26,8 +26,8 @@ public final class TaskAuditEntityMapper {
         TaskAudit audit = new TaskAudit(
                 entity.getTaskId(),
                 entity.getAction(),
-                entity.getOldStatus(),
-                entity.getNewStatus(),
+                entity.getFromStatus(),
+                entity.getToStatus(),
                 entity.getPerformedBy(),
                 entity.getMessage()
         );

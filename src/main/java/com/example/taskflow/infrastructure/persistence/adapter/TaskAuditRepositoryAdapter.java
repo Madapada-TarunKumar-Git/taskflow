@@ -25,7 +25,7 @@ public class TaskAuditRepositoryAdapter implements TaskAuditRepository {
 
     @Override
     public List<TaskAudit> findByTaskId(Long taskId) {
-        return jpaTaskAuditRepository.findById(taskId)
+        return jpaTaskAuditRepository.findByTaskIdOrderByCreatedAtAsc(taskId)
                 .stream()
                 .map(TaskAuditEntityMapper::toDomain)
                 .toList();

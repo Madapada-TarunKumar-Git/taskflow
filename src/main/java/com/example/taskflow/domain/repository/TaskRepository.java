@@ -18,4 +18,11 @@ public interface TaskRepository {
     Page<Task> findTasks(Pageable pageable, TaskStatus status);
 
     boolean claimTaskForProcessing(Long taskId);
+
+    long countTasks(TaskStatus status);
+
+    long countAll();
+
+    List<Task> findTop100ByStatusOrderByCreatedAtAsc(TaskStatus status);
+
 }

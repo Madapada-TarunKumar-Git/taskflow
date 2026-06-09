@@ -10,12 +10,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
+@Transactional
 public class TaskRepositoryAdapter implements TaskRepository {
     private final JpaTaskRepository jpaTaskRepository;
 
@@ -53,10 +55,30 @@ public class TaskRepositoryAdapter implements TaskRepository {
     }
 
     @Override
+    @Transactional
     public boolean claimTaskForProcessing(Long taskId) {
         int UpdatedRows = jpaTaskRepository.claimTaskForProcessing(
                 taskId, TaskStatus.QUEUED, TaskStatus.PROCESSING);
         return UpdatedRows == 1;
     }
+
+    @Override
+    public long countTasks(TaskStatus status) {
+        return jpaTaskRepository.countByStatus(status);
+    }
+
+    @Override
+    public long countAll() {
+        return jpaTaskRepository.count();
+    }
+
+    @Override
+    public List<Task> findTop100ByStatusOrderByCreatedAtAsc(TaskStatus status) {
+        return jpaTaskRepository.findTop100ByStatusOrderByCreatedAtAsc(status)
+                .stream()
+                .map(TaskEntityMapper::toDomain)
+                .toList();
+    }
+
 
 }

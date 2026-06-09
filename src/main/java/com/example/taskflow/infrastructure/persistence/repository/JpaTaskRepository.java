@@ -14,6 +14,7 @@ import java.util.List;
 
 public interface JpaTaskRepository extends JpaRepository<TaskEntity, Long> {
     List<TaskEntity> findByStatus(TaskStatus status);
+    long countByStatus(TaskStatus status);
 
     Page<TaskEntity> findByStatus(TaskStatus status, Pageable pageable);
 
@@ -34,4 +35,6 @@ public interface JpaTaskRepository extends JpaRepository<TaskEntity, Long> {
             TaskStatus processingStatus
 
     );
+
+    List<TaskEntity> findTop100ByStatusOrderByCreatedAtAsc(TaskStatus status);
 }
