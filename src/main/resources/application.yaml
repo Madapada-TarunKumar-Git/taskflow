@@ -33,3 +33,12 @@ logging:
     root: INFO
   file:
     name: logs/tasks.log
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
