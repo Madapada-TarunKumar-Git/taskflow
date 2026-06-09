@@ -5,7 +5,7 @@ import com.example.taskflow.application.command.UploadTaskCommand;
 import com.example.taskflow.application.dto.TaskProcessingResultDto;
 import com.example.taskflow.domain.enums.TaskAuditAction;
 import com.example.taskflow.domain.enums.TaskStatus;
-import com.example.taskflow.presentation.response.TaskProcessingResponseDto;
+import com.example.taskflow.domain.exception.InvalidTaskStateException;
 import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.application.mapper.TaskMapper;
 import com.example.taskflow.application.port.FileStoragePort;
@@ -100,6 +100,7 @@ public class TaskCommandService implements TaskCommandUseCase {
             );
 
             TaskStatus beforeCompletion = task.getStatus();
+            log.info("before completion: {}",beforeCompletion);
             if (result.failedRecords() > 0) {
                 task.markAsPartiallyCompleted();
                 taskAuditService.logTaskEvent(task, TaskAuditAction.PROCESSING_PARTIALLY_COMPLETED, beforeCompletion, task.getStatus(), "Processing partially completed", "System");
@@ -108,11 +109,11 @@ public class TaskCommandService implements TaskCommandUseCase {
                 taskAuditService.logTaskEvent(task, TaskAuditAction.TASK_COMPLETED, beforeCompletion, task.getStatus(), "Processing completed", "System");
             }
         } catch (Exception ex) {
-            log.info("Task processing failed for: {}", taskId, ex);
+            log.info("Task processing failed for: {}", task.getId(), ex);
             TaskStatus beforeFailure = task.getStatus();
             task.incrementRetryCount();
             if (task.hasReachedMaxRetryLimit()) {
-                log.info("Retry exceeded maximum limit for task: {}", taskId, ex);
+                log.info("Retry exceeded maximum limit for task: {}", task.getId(), ex);
                 task.markAsPermanentFailure(ex.getMessage());
                 taskAuditService.logTaskEvent(task, TaskAuditAction.TASK_FAILED, beforeFailure, task.getStatus(), "Processing failed permanently as the retry limit exceeded", "System");
             } else {
@@ -121,5 +122,30 @@ public class TaskCommandService implements TaskCommandUseCase {
             }
         }
         taskRepository.save(task);
+    }
+
+    @Override
+    public TaskResponseDto retryTask(Long taskId, MultipartFile file) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
+        if (task.getStatus() != TaskStatus.PERMANENT_FAILURE){
+            throw new InvalidTaskStateException("Only permanently failed tasks can be re-tried");
+        }
+        TaskStatus beforeFileUpload = task.getStatus();
+        taskFileValidator.validate(file, task.getTaskType());
+        task.markAsFileUploaded();
+        FileUploadResult fileUploadResult = fileStoragePort.storeFile(file);
+
+        task.setOriginalFileName(fileUploadResult.originalFileName());
+        task.setStoredFileName(fileUploadResult.storedFilename());
+        task.setFilePath(fileUploadResult.filePath());
+        task.setFileSize(fileUploadResult.fileSize());
+
+        taskAuditService.logTaskEvent(task,TaskAuditAction.FILE_UPLOADED,beforeFileUpload,task.getStatus(),"File uploaded",task.getCreatedBy());
+        log.info("Before retry status: {}",beforeFileUpload);
+        TaskStatus beforeQueue = task.getStatus();
+        task.markAsQueued();
+        taskRepository.save(task);
+        taskAuditService.logTaskEvent(task,TaskAuditAction.TASK_RE_QUEUED,beforeQueue,task.getStatus(),"Task re-queued to process failed task",task.getCreatedBy());
+        return TaskMapper.toResponseDto(task);
     }
 }
