@@ -29,6 +29,7 @@ public final class TaskEntityMapper {
         entity.setFailedRecords(task.getFailedRecords());
         entity.setProcessingStartedAt(task.getProcessingStartedAt());
         entity.setProcessingCompletedAt(task.getProcessingCompletedAt());
+        entity.setVersion(task.getVersion());
 
         return entity;
     }
@@ -54,7 +55,8 @@ public final class TaskEntityMapper {
                 entity.getSuccessRecords(),
                 entity.getFailedRecords(),
                 entity.getProcessingStartedAt(),
-                entity.getProcessingCompletedAt()
+                entity.getProcessingCompletedAt(),
+                entity.getVersion()
         );
     }
 }

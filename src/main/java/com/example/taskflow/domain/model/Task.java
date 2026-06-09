@@ -16,6 +16,7 @@ import java.util.Objects;
 public class Task {
     private static final int MAX_RETRY_COUNT = 3;
     private Long id;
+    private Long version;
     private String taskName;
     private String description;
     private TaskType taskType;
@@ -77,7 +78,7 @@ public class Task {
                                String filePath, Long fileSize,
                                Integer totalRecords, Integer successRecords,
                                Integer failedRecords, Instant processingStartedAt,
-                               Instant processingCompletedAt) {
+                               Instant processingCompletedAt, Long version) {
         Task task = new Task(
                 taskName,
                 description,
@@ -101,6 +102,7 @@ public class Task {
         task.failedRecords = failedRecords;
         task.processingStartedAt = processingStartedAt;
         task.processingCompletedAt = processingCompletedAt;
+        task.version = version;
 
         return task;
     }
@@ -134,15 +136,15 @@ public class Task {
     }
 
     public void markAsFileUploaded() {
-        validateCurrentStatus(TaskStatus.CREATED);
+        validateCurrentStatus(TaskStatus.CREATED, TaskStatus.PERMANENT_FAILURE);
         this.status = TaskStatus.FILE_UPLOADED;
         updateTimestamp();
     }
 
     public void markAsQueued() {
-        validateCurrentStatus(TaskStatus.FILE_UPLOADED,TaskStatus.RETRY_PENDING);
-            this.status = TaskStatus.QUEUED;
-            updateTimestamp();
+        validateCurrentStatus(TaskStatus.FILE_UPLOADED, TaskStatus.RETRY_PENDING);
+        this.status = TaskStatus.QUEUED;
+        updateTimestamp();
     }
 
     public void markAsRetryPending() {
