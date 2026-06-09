@@ -15,13 +15,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class TaskSchedulerService {
     private final TaskRepository taskRepository;
     private final AsyncTaskProcessorService asyncTaskProcessorService;
     private final TaskAuditService taskAuditService;
 
-    @Scheduled(fixedDelay = 30000) // 30 Seconds
+    @Scheduled(fixedDelay = 120000) // 120 Seconds
     public void processQueuedTasks() {
         log.info("Checking for queued tasks");
         List<Task> queuedTasks = taskRepository.findByStatus(TaskStatus.QUEUED);
@@ -33,12 +32,13 @@ public class TaskSchedulerService {
 
         for (Task task : queuedTasks) {
             boolean taskClaimedSuccessfully  = taskRepository.claimTaskForProcessing(task.getId());
-            taskAuditService.logTaskEvent(task, TaskAuditAction.PROCESSING_STARTED,TaskStatus.QUEUED, TaskStatus.PROCESSING,"Claimed for processing","System");
             // if taskClaimedSuccessfully = true ( means 1 == 1 rows updated)
             if (!taskClaimedSuccessfully ) { // !false = true ; means the task already updated to process
                 log.info("Task already claimed: {}", task.getId());
                 continue;
             }
+            Task claimedTask = taskRepository.findById(task.getId()).orElseThrow();
+            taskAuditService.logTaskEvent(claimedTask, TaskAuditAction.PROCESSING_STARTED,TaskStatus.QUEUED, claimedTask.getStatus(),"Claimed for processing","System");
             asyncTaskProcessorService.processTaskAsync(task.getId());
         }
     }
