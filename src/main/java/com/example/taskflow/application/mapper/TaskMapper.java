@@ -1,12 +1,11 @@
 package com.example.taskflow.application.mapper;
 
-import com.example.taskflow.application.dto.TaskProcessingResultDto;
-import com.example.taskflow.presentation.response.TaskProcessingResponseDto;
 import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.domain.model.Task;
 import com.example.taskflow.shared.response.PageResponse;
 import org.springframework.data.domain.Page;
 
+import java.time.Duration;
 import java.util.List;
 
 public final class TaskMapper {
@@ -23,7 +22,13 @@ public final class TaskMapper {
                 task.getPriority(),
                 task.getRetryCount(),
                 task.getCreatedBy(),
-                task.getCreatedAt()
+                task.getCreatedAt(),
+                task.getProcessingStartedAt(),
+                task.getProcessingCompletedAt(),
+                Duration.between(
+                        task.getProcessingStartedAt(),
+                        task.getProcessingCompletedAt()
+                ).toMillis()
         );
     }
 
