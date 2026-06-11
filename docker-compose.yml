@@ -24,9 +24,10 @@ services:
     volumes:
       - ./uploads:/app/uploads
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskflow_db?currentSchema=task
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: ${PROFILE}
+      SPRING_DATASOURCE_URL: ${DB_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
 volumes:
   postgres_data:
