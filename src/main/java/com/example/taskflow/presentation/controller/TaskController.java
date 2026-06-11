@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +39,7 @@ public class TaskController {
 
     @Operation(summary = "Create tasks", description = "Task creation with type, priority")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Task created successfully")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<ApiResponse<TaskResponseDto>> createTask(@Valid @RequestBody CreateTaskRequest request) {
         TaskResponseDto response = taskCommandUseCase.createTask(TaskRequestMapper.toCreateCommand(request));
@@ -48,6 +50,7 @@ public class TaskController {
 
     @Operation(summary = "Get tasks by Id", description = "Retrieve detailed information about a task")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Task retrieved successfully")
+    @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
     @GetMapping("/{taskId}")
     public ResponseEntity<ApiResponse<TaskResponseDto>> getTaskById(@PathVariable Long taskId) {
         TaskResponseDto response = taskQueryUseCase.getTaskById(taskId);
@@ -57,6 +60,7 @@ public class TaskController {
 
     @Operation(summary = "Get all tasks", description = "Retrieve list of task details based on status")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tasks retrieved successfully")
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<TaskResponseDto>>> getTasks(
             @Min(0) @RequestParam(name = "page", defaultValue = "0")
@@ -83,13 +87,13 @@ public class TaskController {
 
     @Operation(summary = "Upload task", description = "Create task and upload CSV file for async processing")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Task uploaded successfully")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<TaskResponseDto>> uploadFile(
-            @Valid @ModelAttribute UploadTaskRequest request,
-            @RequestPart("file") MultipartFile file) {
+            @Valid @ModelAttribute UploadTaskRequest request) {
         UploadTaskCommand command = TaskRequestMapper.toUploadCommand(request);
 
-        TaskResponseDto response = taskCommandUseCase.uploadTask(command, file);
+        TaskResponseDto response = taskCommandUseCase.uploadTask(command, request.file());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Task uploaded successfully", response));
@@ -97,6 +101,7 @@ public class TaskController {
 
     @Operation(summary = "Task Statistics", description = "retrieve the task statistics")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Statistics of tasks retrieved successfully")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/statistics")
     public ResponseEntity<ApiResponse<StatusResponse>> getStatistics() {
         StatusResponse response = taskQueryUseCase.getTaskStatistics();
@@ -105,6 +110,7 @@ public class TaskController {
 
     @Operation(summary = "Task audits", description = "Retrieve task flow by id")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Task audit history retrieved successfully")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{taskId}/audits")
     public ResponseEntity<ApiResponse<List<AuditResponse>>> getTaskAudits(@PathVariable Long taskId) {
         List<AuditResponse> response = taskAuditQueryUseCase.getTaskAudits(taskId);
@@ -113,6 +119,7 @@ public class TaskController {
 
     @Operation(summary = "Retry task", description = "Retry the permanently failed task with id")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Task re-tried successfully and moved to queued")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{taskId}/retry", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<TaskResponseDto>> retryTask(
             @PathVariable Long taskId,
