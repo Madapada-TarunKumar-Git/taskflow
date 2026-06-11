@@ -25,10 +25,7 @@ public final class TaskMapper {
                 task.getCreatedAt(),
                 task.getProcessingStartedAt(),
                 task.getProcessingCompletedAt(),
-                Duration.between(
-                        task.getProcessingStartedAt(),
-                        task.getProcessingCompletedAt()
-                ).toMillis()
+                calculateProcessingDuration(task)
         );
     }
 
@@ -44,14 +41,15 @@ public final class TaskMapper {
         );
     }
 
-//    public static TaskProcessingResponseDto toTaskProcessingResponseDto(Task task, TaskProcessingResultDto result) {
-//        return new TaskProcessingResponseDto(
-//                task.getId(),
-//                task.getStatus(),
-//                result.totalRecords(),
-//                result.successfulRecords(),
-//                result.failedRecords(),
-//                result.errors()
-//        );
-//    }
+    private static Long calculateProcessingDuration(Task task) {
+        if (task.getProcessingStartedAt() == null
+                || task.getProcessingCompletedAt() == null) {
+            return null;
+        }
+
+        return Duration.between(
+                task.getProcessingStartedAt(),
+                task.getProcessingCompletedAt()
+        ).toMillis();
+    }
 }

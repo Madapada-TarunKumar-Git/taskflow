@@ -4,6 +4,7 @@ import com.example.taskflow.domain.enums.TaskPriority;
 import com.example.taskflow.domain.enums.TaskType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 public record UploadTaskRequest(
         @NotBlank(message = "Task name is required")
@@ -18,6 +19,8 @@ public record UploadTaskRequest(
         TaskPriority priority,
 
         @NotBlank(message = "Created by is required")
-        String createdBy
+        String createdBy,
+
+        MultipartFile file
 ) {
 }
