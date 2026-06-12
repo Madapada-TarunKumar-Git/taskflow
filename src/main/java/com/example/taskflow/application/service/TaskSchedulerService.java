@@ -38,7 +38,7 @@ public class TaskSchedulerService {
                 continue;
             }
             Task claimedTask = taskRepository.findById(task.getId()).orElseThrow();
-            taskAuditService.logTaskEvent(claimedTask, TaskAuditAction.PROCESSING_STARTED,TaskStatus.QUEUED, claimedTask.getStatus(),"Claimed for processing","System");
+            taskAuditService.logTaskEvent(claimedTask, TaskAuditAction.PROCESSING_STARTED,TaskStatus.QUEUED, claimedTask.getStatus(),"Claimed for processing","SYSTEM");
             asyncTaskProcessorService.processTaskAsync(task.getId());
         }
     }
