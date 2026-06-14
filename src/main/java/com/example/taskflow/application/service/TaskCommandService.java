@@ -94,6 +94,7 @@ public class TaskCommandService implements TaskCommandUseCase {
     public void processTask(Long taskId) {
         Task task = taskRepository.findById(taskId).orElseThrow(() ->
                 new TaskNotFoundException("Task not found with id: " + taskId));
+
         try {
             TaskProcessingResultDto result = customerCsvProcessingService.process(task.getFilePath());
             task.updateProcessingStatistics(
@@ -109,6 +110,7 @@ public class TaskCommandService implements TaskCommandUseCase {
                 taskAuditService.logTaskEvent(task, TaskAuditAction.PROCESSING_PARTIALLY_COMPLETED, beforeCompletion, task.getStatus(), "Processing partially completed", "SYSTEM");
             } else {
                 task.markAsCompleted();
+                log.info("Task {} successfully processed",task.getId());
                 taskAuditService.logTaskEvent(task, TaskAuditAction.TASK_COMPLETED, beforeCompletion, task.getStatus(), "Processing completed", "SYSTEM");
             }
         } catch (Exception ex) {
@@ -121,14 +123,14 @@ public class TaskCommandService implements TaskCommandUseCase {
                 taskAuditService.logTaskEvent(task, TaskAuditAction.TASK_FAILED, beforeFailure, task.getStatus(), "Processing failed permanently as the retry limit exceeded", "SYSTEM");
             } else {
                 task.markAsRetryPending();
-                taskAuditService.logTaskEvent(task, TaskAuditAction.RETRY_TRIGGERED, beforeFailure, task.getStatus(), "Processing failed", "SYSTEM");
+                taskAuditService.logTaskEvent(task, TaskAuditAction.RETRY_TRIGGERED, beforeFailure, task.getStatus(), "Processing failed, triggering retry: "+ task.getRetryCount(), "SYSTEM");
             }
         }
         taskRepository.save(task);
     }
 
     @Override
-    public TaskResponseDto retryTask(Long taskId, MultipartFile file) {
+    public TaskResponseDto reProcessFailedTask(Long taskId, MultipartFile file) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
         if (task.getStatus() != TaskStatus.PERMANENT_FAILURE){
             throw new InvalidTaskStateException("Only permanently failed tasks can be re-tried");
