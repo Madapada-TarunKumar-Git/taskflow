@@ -13,5 +13,5 @@ public interface TaskCommandUseCase {
 
     void processTask(Long taskId);
 
-    TaskResponseDto retryTask(Long taskId, MultipartFile file);
+    TaskResponseDto reProcessFailedTask(Long taskId, MultipartFile file);
 }

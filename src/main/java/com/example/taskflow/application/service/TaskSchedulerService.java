@@ -23,7 +23,7 @@ public class TaskSchedulerService {
     @Scheduled(fixedDelay = 120000) // 120 Seconds
     public void processQueuedTasks() {
         log.info("Checking for queued tasks");
-        List<Task> queuedTasks = taskRepository.findByStatus(TaskStatus.QUEUED);
+        List<Task> queuedTasks = taskRepository.findTop100ByStatusOrderByCreatedAtAsc(TaskStatus.QUEUED);
         if (queuedTasks.isEmpty()) {
             log.info("No tasks in queue");
             return;
@@ -38,7 +38,7 @@ public class TaskSchedulerService {
                 continue;
             }
             Task claimedTask = taskRepository.findById(task.getId()).orElseThrow();
-            taskAuditService.logTaskEvent(claimedTask, TaskAuditAction.PROCESSING_STARTED,TaskStatus.QUEUED, claimedTask.getStatus(),"Claimed for processing","System");
+            taskAuditService.logTaskEvent(claimedTask, TaskAuditAction.PROCESSING_STARTED,TaskStatus.QUEUED, claimedTask.getStatus(),"Claimed for processing","SYSTEM");
             asyncTaskProcessorService.processTaskAsync(task.getId());
         }
     }

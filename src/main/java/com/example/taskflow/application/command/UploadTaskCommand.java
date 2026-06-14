@@ -7,7 +7,6 @@ public record UploadTaskCommand(
         String taskName,
         String description,
         TaskType taskType,
-        TaskPriority priority,
-        String createdBy
+        TaskPriority priority
 ) {
 }

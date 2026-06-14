@@ -7,7 +7,6 @@ public record CreateTaskCommand(
         String taskName,
         String description,
         TaskType taskType,
-        TaskPriority priority,
-        String createdBY
+        TaskPriority priority
 ) {
 }

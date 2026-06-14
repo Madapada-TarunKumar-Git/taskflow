@@ -55,7 +55,7 @@ public class TaskQueryService implements TaskQueryUseCase {
                 taskRepository.countAll(),
                 taskRepository.countTasks(TaskStatus.COMPLETED),
                 taskRepository.countTasks(TaskStatus.PROCESSING),
-                taskRepository.countTasks(TaskStatus.FAILED),
+                taskRepository.countTasks(TaskStatus.PERMANENT_FAILURE),
                 taskRepository.countTasks(TaskStatus.RETRY_PENDING),
                 taskRepository.countTasks(TaskStatus.QUEUED),
                 taskRepository.countTasks(TaskStatus.CREATED)

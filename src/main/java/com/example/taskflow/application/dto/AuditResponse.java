@@ -10,6 +10,7 @@ public record AuditResponse(
         TaskStatus fromStatus,
         TaskStatus toStatus,
         String message,
+        String performedBy,
         Instant createdAt
 ) {
 }

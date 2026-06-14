@@ -50,7 +50,6 @@ public class TaskController {
 
     @Operation(summary = "Get tasks by Id", description = "Retrieve detailed information about a task")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Task retrieved successfully")
-    @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
     @GetMapping("/{taskId}")
     public ResponseEntity<ApiResponse<TaskResponseDto>> getTaskById(@PathVariable Long taskId) {
         TaskResponseDto response = taskQueryUseCase.getTaskById(taskId);
@@ -60,7 +59,6 @@ public class TaskController {
 
     @Operation(summary = "Get all tasks", description = "Retrieve list of task details based on status")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tasks retrieved successfully")
-    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<TaskResponseDto>>> getTasks(
             @Min(0) @RequestParam(name = "page", defaultValue = "0")
@@ -87,7 +85,6 @@ public class TaskController {
 
     @Operation(summary = "Upload task", description = "Create task and upload CSV file for async processing")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Task uploaded successfully")
-    @PreAuthorize("isAuthenticated()")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<TaskResponseDto>> uploadFile(
             @Valid @ModelAttribute UploadTaskRequest request) {
@@ -125,7 +122,7 @@ public class TaskController {
             @PathVariable Long taskId,
             @RequestPart("file") MultipartFile file
             ) {
-        TaskResponseDto response = taskCommandUseCase.retryTask(taskId,file);
+        TaskResponseDto response = taskCommandUseCase.reProcessFailedTask(taskId,file);
         return ResponseEntity.ok(ApiResponse.success("Task re-tried successfully", response));
     }
 }

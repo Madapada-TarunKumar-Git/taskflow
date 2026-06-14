@@ -107,10 +107,15 @@ public class Task {
         return task;
     }
 
-    public void markAsValidating() {
-        validateCurrentStatus(TaskStatus.FILE_UPLOADED);
+    public void markAsFileUploaded() {
+        validateCurrentStatus(TaskStatus.CREATED, TaskStatus.PERMANENT_FAILURE);
+        this.status = TaskStatus.FILE_UPLOADED;
+        updateTimestamp();
+    }
 
-        this.status = TaskStatus.VALIDATING;
+    public void markAsQueued() {
+        validateCurrentStatus(TaskStatus.FILE_UPLOADED, TaskStatus.RETRY_PENDING);
+        this.status = TaskStatus.QUEUED;
         updateTimestamp();
     }
 
@@ -132,18 +137,6 @@ public class Task {
         validateCurrentStatus(TaskStatus.PROCESSING);
         this.status = TaskStatus.COMPLETED;
         this.processingCompletedAt = Instant.now();
-        updateTimestamp();
-    }
-
-    public void markAsFileUploaded() {
-        validateCurrentStatus(TaskStatus.CREATED, TaskStatus.PERMANENT_FAILURE);
-        this.status = TaskStatus.FILE_UPLOADED;
-        updateTimestamp();
-    }
-
-    public void markAsQueued() {
-        validateCurrentStatus(TaskStatus.FILE_UPLOADED, TaskStatus.RETRY_PENDING);
-        this.status = TaskStatus.QUEUED;
         updateTimestamp();
     }
 
