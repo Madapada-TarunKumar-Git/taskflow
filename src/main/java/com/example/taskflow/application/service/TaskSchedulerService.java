@@ -23,7 +23,7 @@ public class TaskSchedulerService {
     @Scheduled(fixedDelay = 120000) // 120 Seconds
     public void processQueuedTasks() {
         log.info("Checking for queued tasks");
-        List<Task> queuedTasks = taskRepository.findByStatus(TaskStatus.QUEUED);
+        List<Task> queuedTasks = taskRepository.findTop100ByStatusOrderByCreatedAtAsc(TaskStatus.QUEUED);
         if (queuedTasks.isEmpty()) {
             log.info("No tasks in queue");
             return;
