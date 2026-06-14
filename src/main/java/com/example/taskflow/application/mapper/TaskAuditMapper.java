@@ -10,6 +10,7 @@ public final class TaskAuditMapper {
                 taskAudit.getFromStatus(),
                 taskAudit.getToStatus(),
                 taskAudit.getMessage(),
+                taskAudit.getPerformedBy(),
                 taskAudit.getCreatedAt()
         );
     }

@@ -13,8 +13,7 @@ public final class TaskRequestMapper {
                 request.taskName(),
                 request.description(),
                 request.taskType(),
-                request.priority(),
-                request.createdBy()
+                request.priority()
         );
     }
 
@@ -23,8 +22,7 @@ public final class TaskRequestMapper {
                 request.taskName(),
                 request.description(),
                 request.taskType(),
-                request.priority(),
-                request.createdBy()
+                request.priority()
         );
     }
 }
