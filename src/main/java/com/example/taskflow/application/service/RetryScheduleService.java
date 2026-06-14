@@ -19,7 +19,7 @@ public class RetryScheduleService {
     private final RetryTaskService retryTaskService;
 
     @Scheduled(fixedDelay = 60000) // 60 seconds
-    public void retryFailedTasks() {
+    public void retryPendingTasks() {
         List<Task> retryTasks = taskRepository.findTop100ByStatusOrderByCreatedAtAsc(TaskStatus.RETRY_PENDING);
 
         if (retryTasks.isEmpty()) return;
