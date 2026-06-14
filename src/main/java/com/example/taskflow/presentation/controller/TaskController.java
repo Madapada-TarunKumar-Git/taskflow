@@ -122,7 +122,7 @@ public class TaskController {
             @PathVariable Long taskId,
             @RequestPart("file") MultipartFile file
             ) {
-        TaskResponseDto response = taskCommandUseCase.retryTask(taskId,file);
+        TaskResponseDto response = taskCommandUseCase.reProcessFailedTask(taskId,file);
         return ResponseEntity.ok(ApiResponse.success("Task re-tried successfully", response));
     }
 }
