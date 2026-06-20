@@ -1,0 +1,27 @@
+package com.example.taskflow.integration;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+
+@SpringBootTest
+@ActiveProfiles("test")
+@AutoConfigureMockMvc
+public class AuthControllerIntegrationTest {
+    @Autowired
+    MockMvc mockMvc;
+
+    @Test
+    void shouldRegister(){
+        String registerRequest = """
+                {
+                    "username":"Tarun",
+                    "password":"password123",
+                    "role":"ROLE_USER"
+                }
+                """;
+    }
+}
