@@ -13,6 +13,8 @@ spring:
 
 server:
   port: 7600
+  servlet:
+    context-path: /tasks
 
 springdoc:
   swagger-ui:

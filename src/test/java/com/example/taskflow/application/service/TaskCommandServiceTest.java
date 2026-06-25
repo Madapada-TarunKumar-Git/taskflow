@@ -88,7 +88,7 @@ public class TaskCommandServiceTest {
         verify(taskAuditService).logTaskEvent(
                 any(Task.class),
                 eq(TaskAuditAction.TASK_CREATED), //we use "eq" for real values
-                isNull(),
+                eq(TaskStatus.CREATED),
                 eq(TaskStatus.CREATED),
                 eq("Task created"),
                 eq("tester")
