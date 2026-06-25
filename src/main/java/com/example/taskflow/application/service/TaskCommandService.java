@@ -35,6 +35,7 @@ public class TaskCommandService implements TaskCommandUseCase {
     private final CustomerCsvProcessingService customerCsvProcessingService;
     private final TaskAuditService taskAuditService;
     private final SecurityUtil securityUtil;
+
     @Override
     public TaskResponseDto createTask(CreateTaskCommand command) {
         Task task = new Task(
@@ -47,7 +48,7 @@ public class TaskCommandService implements TaskCommandUseCase {
 
         Task savedTask = taskRepository.save(task);
         taskAuditService.logTaskEvent(savedTask, TaskAuditAction.TASK_CREATED,
-                null, savedTask.getStatus(),
+                TaskStatus.CREATED, savedTask.getStatus(),
                 "Task created",
                 securityUtil.getUsername()
         );
@@ -96,6 +97,7 @@ public class TaskCommandService implements TaskCommandUseCase {
                 new TaskNotFoundException("Task not found with id: " + taskId));
 
         try {
+            log.info("Task processing started for: {}", taskId);
             TaskProcessingResultDto result = customerCsvProcessingService.process(task.getFilePath());
             task.updateProcessingStatistics(
                     result.totalRecords(),
@@ -104,13 +106,12 @@ public class TaskCommandService implements TaskCommandUseCase {
             );
 
             TaskStatus beforeCompletion = task.getStatus();
-            log.info("before completion: {}",beforeCompletion);
             if (result.failedRecords() > 0) {
                 task.markAsPartiallyCompleted();
                 taskAuditService.logTaskEvent(task, TaskAuditAction.PROCESSING_PARTIALLY_COMPLETED, beforeCompletion, task.getStatus(), "Processing partially completed", "SYSTEM");
             } else {
                 task.markAsCompleted();
-                log.info("Task {} successfully processed",task.getId());
+                log.info("Task -{} successfully processed", task.getId());
                 taskAuditService.logTaskEvent(task, TaskAuditAction.TASK_COMPLETED, beforeCompletion, task.getStatus(), "Processing completed", "SYSTEM");
             }
         } catch (Exception ex) {
@@ -123,7 +124,7 @@ public class TaskCommandService implements TaskCommandUseCase {
                 taskAuditService.logTaskEvent(task, TaskAuditAction.TASK_FAILED, beforeFailure, task.getStatus(), "Processing failed permanently as the retry limit exceeded", "SYSTEM");
             } else {
                 task.markAsRetryPending();
-                taskAuditService.logTaskEvent(task, TaskAuditAction.RETRY_TRIGGERED, beforeFailure, task.getStatus(), "Processing failed, triggering retry: "+ task.getRetryCount(), "SYSTEM");
+                taskAuditService.logTaskEvent(task, TaskAuditAction.RETRY_TRIGGERED, beforeFailure, task.getStatus(), "Processing failed, triggering retry: " + task.getRetryCount(), "SYSTEM");
             }
         }
         taskRepository.save(task);
@@ -132,7 +133,7 @@ public class TaskCommandService implements TaskCommandUseCase {
     @Override
     public TaskResponseDto reProcessFailedTask(Long taskId, MultipartFile file) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
-        if (task.getStatus() != TaskStatus.PERMANENT_FAILURE){
+        if (task.getStatus() != TaskStatus.PERMANENT_FAILURE) {
             throw new InvalidTaskStateException("Only permanently failed tasks can be re-tried");
         }
         TaskStatus beforeFileUpload = task.getStatus();
@@ -145,12 +146,12 @@ public class TaskCommandService implements TaskCommandUseCase {
         task.setFileSize(fileUploadResult.fileSize());
         task.markAsFileUploaded();
 
-        taskAuditService.logTaskEvent(task,TaskAuditAction.FILE_UPLOADED,beforeFileUpload,task.getStatus(),"File uploaded",securityUtil.getUsername());
-        log.info("Before retry status: {}",beforeFileUpload);
+        taskAuditService.logTaskEvent(task, TaskAuditAction.FILE_UPLOADED, beforeFileUpload, task.getStatus(), "File uploaded", securityUtil.getUsername());
+        log.info("Before retry status: {}", beforeFileUpload);
         TaskStatus beforeQueue = task.getStatus();
         task.markAsQueued();
         Task savedTask = taskRepository.save(task);
-        taskAuditService.logTaskEvent(savedTask,TaskAuditAction.TASK_RE_QUEUED,beforeQueue,savedTask.getStatus(),"Task re-queued to process failed task",securityUtil.getUsername());
+        taskAuditService.logTaskEvent(savedTask, TaskAuditAction.TASK_RE_QUEUED, beforeQueue, savedTask.getStatus(), "Task re-queued to process failed task", securityUtil.getUsername());
         return TaskMapper.toResponseDto(task);
     }
 }
