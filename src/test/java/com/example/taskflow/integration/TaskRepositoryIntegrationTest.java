@@ -1,5 +1,6 @@
 package com.example.taskflow.integration;
 
+import com.example.taskflow.TaskflowApplicationTests;
 import com.example.taskflow.domain.enums.TaskPriority;
 import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.domain.enums.TaskType;
@@ -9,6 +10,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
 import java.util.List;
