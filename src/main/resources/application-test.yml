@@ -5,3 +5,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+jwt:
+  token:
+    secret: ${SECRET}
+    expiry: 360000
