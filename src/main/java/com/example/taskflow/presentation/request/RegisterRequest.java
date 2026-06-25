@@ -16,6 +16,6 @@ public record RegisterRequest(
         String password,
 
         @NotNull(message = "Role is required")
-        Set<UserRoles> roles
+        Set<UserRoles> role
 ) {
 }

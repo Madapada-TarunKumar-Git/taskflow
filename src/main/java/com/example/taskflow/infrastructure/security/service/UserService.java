@@ -30,7 +30,7 @@ public class UserService {
         UserEntity entity = new UserEntity();
         entity.setUsername(registerRequest.username());
         entity.setPassword(passwordEncoder.encode(registerRequest.password()));
-        entity.setRole(registerRequest.roles());
+        entity.setRole(registerRequest.role());
 
         UserEntity savedEntity = repository.save(entity);
 
