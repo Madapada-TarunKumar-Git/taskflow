@@ -18,9 +18,5 @@ public record CreateTaskRequest(
         TaskType taskType,
 
         @NotNull(message = "Task priority is required")
-        TaskPriority priority,
-
-        @NotBlank(message = "Created by is required")
-        String createdBy
-) {
-}
+        TaskPriority priority
+) {}

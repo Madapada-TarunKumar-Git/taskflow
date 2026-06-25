@@ -18,9 +18,6 @@ public record UploadTaskRequest(
         @NotNull(message = "Priority is required")
         TaskPriority priority,
 
-        @NotBlank(message = "Created by is required")
-        String createdBy,
-
         MultipartFile file
 ) {
 }
