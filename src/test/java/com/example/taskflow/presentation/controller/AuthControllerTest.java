@@ -1,4 +1,4 @@
 package com.example.taskflow.presentation.controller;
 
-public class AuthController {
+public class AuthControllerTest {
 }
