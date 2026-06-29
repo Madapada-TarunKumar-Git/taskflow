@@ -3,6 +3,6 @@ spring:
     name: docker-taskflow
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5432/taskflow_db?currentSchema=task
-    username: postgres
-    password: postgres
+    url: ${DOCKER_DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
