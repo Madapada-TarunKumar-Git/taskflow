@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "src/**"
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "pom.xml"
+      - ".github/workflows/**"
 
 jobs:
   deploy:
@@ -12,6 +18,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven
+
+      - name: Build Application
+        run: mvn clean package -DskipTests
+#        run: mvn clean verify
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
