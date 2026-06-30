@@ -42,4 +42,4 @@ management:
 jwt:
   token:
     secret: ${SECRET}
-    expiry: 360000
+    expiry: 900000
