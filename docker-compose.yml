@@ -16,8 +16,6 @@ services:
   taskflow-app:
     build: .
     container_name: taskflow-app
-    depends_on:
-      - postgres
     restart: always
     ports:
       - "7600:7600"
