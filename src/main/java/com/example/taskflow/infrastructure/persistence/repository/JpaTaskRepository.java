@@ -13,6 +13,7 @@ import java.util.List;
 
 public interface JpaTaskRepository extends JpaRepository<TaskEntity, Long> {
     List<TaskEntity> findByStatus(TaskStatus status);
+
     long countByStatus(TaskStatus status);
 
     Page<TaskEntity> findByStatus(TaskStatus status, Pageable pageable);
@@ -20,7 +21,8 @@ public interface JpaTaskRepository extends JpaRepository<TaskEntity, Long> {
     @Modifying
     @Query("""
              UPDATE TaskEntity task
-             SET task.status = :processingStatus
+             SET task.status = :processingStatus,
+                 task.processingStartedAt = CURRENT_TIMESTAMP()
              WHERE task.id = :taskId
              AND
              task.status = :queuedStatus
