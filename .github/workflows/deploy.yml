@@ -36,7 +36,7 @@ jobs:
       - name: Build Application and Verify Tests
         run: mvn clean verify
 
-      - name: Deploy App to EC2
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
