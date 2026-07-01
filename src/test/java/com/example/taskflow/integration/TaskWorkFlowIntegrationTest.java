@@ -11,7 +11,6 @@ import com.example.taskflow.domain.model.Task;
 import com.example.taskflow.domain.repository.TaskRepository;
 import com.example.taskflow.presentation.response.TaskResponseDto;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -56,15 +55,12 @@ public class TaskWorkFlowIntegrationTest {
         MultipartFile file = new MockMultipartFile(
                 "file",
                 "customers.csv",
-                "text/csv", "id,name\n1,Tarun"
-                .getBytes());
-
-
-        TaskResponseDto responseDto = taskCommandUseCase.uploadTask(command, file);
-
-        Long taskId = responseDto.id();
-
-        Task task = taskRepository.findById(taskId).orElseThrow();
+                "text/csv",
+                    """
+                        id,name
+                        1,Tarun
+                    """
+                        .getBytes());
 
         when(csvProcessingService.process(any())).thenReturn(new TaskProcessingResultDto(
                 100,
@@ -73,9 +69,16 @@ public class TaskWorkFlowIntegrationTest {
                 List.of()
         ));
 
+        TaskResponseDto responseDto = taskCommandUseCase.uploadTask(command, file);
+
+        Long taskId = responseDto.taskId();
+
+        Task task = taskRepository.findById(taskId).orElseThrow();
+
+        assertEquals("tester", task.getCreatedBy());
         assertEquals(TaskStatus.QUEUED, task.getStatus());
 
-        Task uploadedTask = taskRepository.findById(task.getId()).get();
+        Task uploadedTask = taskRepository.findById(task.getId()).orElseThrow();
         uploadedTask.markAsProcessing();
         taskRepository.save(uploadedTask);
 
@@ -83,7 +86,10 @@ public class TaskWorkFlowIntegrationTest {
 
         Task processedTask = taskRepository.findById(taskId).orElseThrow();
 
+        assertEquals(100, processedTask.getTotalRecords());
+        assertEquals(0, processedTask.getFailedRecords());
         assertEquals(TaskStatus.COMPLETED, processedTask.getStatus());
+
         verify(csvProcessingService).process(any());
 
     }
