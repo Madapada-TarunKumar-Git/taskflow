@@ -2,6 +2,8 @@ package com.example.taskflow.integration;
 
 import com.example.taskflow.TaskflowApplication;
 import com.example.taskflow.infrastructure.security.jwt.JwtService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +14,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,44 +37,46 @@ public class TaskControllerIntegrationTest {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private String token;
+    private String username;
 
     @BeforeEach
-    void setToken() throws Exception {
-        String registerRequest = """
+    void setUp() throws Exception {
+        username = "tester_" + UUID.randomUUID().toString().replace("-", "");
+
+        String registerRequest = String.format("""
                 {
-                    "username": "Tester",
+                    "username": "%s",
                     "password": "password123",
                     "role": ["ROLE_USER"]
                 }
-                """;
-        mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(registerRequest)
-        );
-        String loginRequest = """
-                {
-                  "username": "Tester",
-                  "password": "password123"
-                }
-                """;
-//        MvcResult token = mockMvc.perform(post("/api/auth/login")
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(loginRequest))
-//                .andReturn();
+                """, username);
 
-        token = jwtService.generateToken(new User(
-                "Tester",
-                "",
-                Set.of("ROLE_USER", "ROLE_ADMIN")
-                        .stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toSet()))
-        );
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(registerRequest))
+                .andExpect(status().isCreated());
+
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "username": "%s",
+                            "password": "password123"
+                        }
+                        """.formatted(username)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode json = objectMapper.readTree(loginResult.getResponse().getContentAsString());
+
+        token = json.get("data").get("token").asText();
     }
 
-    @Test
-    void shouldCreateTask() throws Exception {
+    private Long createTask() throws Exception {
         String request = """
                  {
                     "taskName":"Import Customers",
@@ -79,27 +85,36 @@ public class TaskControllerIntegrationTest {
                     "priority":"HIGH"
                  }
                 """;
-
-        mockMvc.perform(post("/api/v1/tasks")
-                        .contentType(MediaType.APPLICATION_JSON)
+        MvcResult result = mockMvc.perform(post("/api/v1/tasks")
                         .header("Authorization", "Bearer " + token)
-                        .content(request)
-                )
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.taskName")
-                        .value("Import Customers"));
+                        .value("Import Customers"))
+                .andReturn();
+
+        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
+
+        return json.get("data").get("taskId").asLong();
     }
 
     @Test
-    void shouldGetTaskById() throws Exception{
-        shouldCreateTask();
-        mockMvc.perform(get("/api/v1/tasks/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization","Bearer " + token)
-        )
+    void shouldCreateTask() throws Exception {
+        createTask();
+    }
+
+    @Test
+    void shouldGetTaskById() throws Exception {
+        Long taskId = createTask();
+        mockMvc.perform(get("/api/v1/tasks/{taskId}", taskId)
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.taskName")
-                        .value("Import Customers"));
+                .andExpect(jsonPath("$.data.taskId").value(taskId))
+                .andExpect(jsonPath("$.data.taskName").value("Import Customers"));
     }
 }

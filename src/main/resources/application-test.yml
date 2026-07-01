@@ -11,3 +11,7 @@ jwt:
   token:
     secret: test-secret-key-for-tests-126-bit
     expiry: 360000
+
+task:
+  scheduler:
+    delay: 1000

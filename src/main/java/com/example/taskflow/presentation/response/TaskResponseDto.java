@@ -10,7 +10,7 @@ import java.time.Instant;
 @Schema(name = "Task response payload")
 public record TaskResponseDto(
         @Schema(example = "1")
-        Long id,
+        Long taskId,
 
         @Schema(example = "Customer Import")
         String taskName,

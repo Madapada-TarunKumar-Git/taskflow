@@ -1,6 +1,5 @@
 package com.example.taskflow.integration;
 
-import com.example.taskflow.TaskflowApplicationTests;
 import com.example.taskflow.domain.enums.TaskPriority;
 import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.domain.enums.TaskType;
@@ -10,7 +9,6 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
 import java.util.List;
@@ -75,7 +73,7 @@ public class TaskRepositoryIntegrationTest {
         assertEquals(2,count);
     }
 
-    TaskEntity getTaskEntity() {
+    private TaskEntity getTaskEntity() {
         TaskEntity entity = new TaskEntity();
         entity.setTaskName("Import Customers");
         entity.setDescription("Description");
@@ -90,7 +88,7 @@ public class TaskRepositoryIntegrationTest {
         return entity;
     }
 
-    List<TaskEntity> getEntities() {
+    private List<TaskEntity> getEntities() {
         TaskEntity entity1 = new TaskEntity();
         entity1.setTaskName("Import Customers");
         entity1.setDescription("Description");
