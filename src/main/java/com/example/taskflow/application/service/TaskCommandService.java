@@ -6,7 +6,8 @@ import com.example.taskflow.application.dto.TaskProcessingResultDto;
 import com.example.taskflow.domain.enums.TaskAuditAction;
 import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.domain.exception.InvalidTaskStateException;
-import com.example.taskflow.presentation.response.TaskResponseDto;
+import com.example.taskflow.presentation.response.CreateTaskResponseDto;
+import com.example.taskflow.presentation.response.RetryTaskResponseDto;
 import com.example.taskflow.application.mapper.TaskMapper;
 import com.example.taskflow.application.port.FileStoragePort;
 import com.example.taskflow.application.port.FileUploadResult;
@@ -15,11 +16,10 @@ import com.example.taskflow.application.validation.TaskFileValidator;
 import com.example.taskflow.domain.exception.TaskNotFoundException;
 import com.example.taskflow.domain.model.Task;
 import com.example.taskflow.domain.repository.TaskRepository;
+import com.example.taskflow.presentation.response.UploadResponseDto;
 import com.example.taskflow.shared.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +37,7 @@ public class TaskCommandService implements TaskCommandUseCase {
     private final SecurityUtil securityUtil;
 
     @Override
-    public TaskResponseDto createTask(CreateTaskCommand command) {
+    public CreateTaskResponseDto createTask(CreateTaskCommand command) {
         Task task = new Task(
                 command.taskName(),
                 command.description(),
@@ -53,11 +53,11 @@ public class TaskCommandService implements TaskCommandUseCase {
                 securityUtil.getUsername()
         );
 
-        return TaskMapper.toResponseDto(savedTask);
+        return TaskMapper.toCreateTaskResponseDto(savedTask);
     }
 
     @Override
-    public TaskResponseDto uploadTask(UploadTaskCommand command, MultipartFile file) {
+    public UploadResponseDto uploadTask(UploadTaskCommand command, MultipartFile file) {
         taskFileValidator.validate(file, command.taskType());
         FileUploadResult fileUploadResult = fileStoragePort.storeFile(file);
 
@@ -88,7 +88,7 @@ public class TaskCommandService implements TaskCommandUseCase {
                 TaskStatus.QUEUED, "Task Queued for processing", securityUtil.getUsername());
 
 
-        return TaskMapper.toResponseDto(savedTask);
+        return TaskMapper.toUploadResponseDto(savedTask);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class TaskCommandService implements TaskCommandUseCase {
     }
 
     @Override
-    public TaskResponseDto reProcessFailedTask(Long taskId, MultipartFile file) {
+    public RetryTaskResponseDto reProcessFailedTask(Long taskId, MultipartFile file) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
         if (task.getStatus() != TaskStatus.PERMANENT_FAILURE) {
             throw new InvalidTaskStateException("Only permanently failed tasks can be re-tried");
@@ -152,6 +152,6 @@ public class TaskCommandService implements TaskCommandUseCase {
         task.markAsQueued();
         Task savedTask = taskRepository.save(task);
         taskAuditService.logTaskEvent(savedTask, TaskAuditAction.TASK_RE_QUEUED, beforeQueue, savedTask.getStatus(), "Task re-queued to process failed task", securityUtil.getUsername());
-        return TaskMapper.toResponseDto(task);
+        return TaskMapper.toRetryTaskResponseDto(task);
     }
 }

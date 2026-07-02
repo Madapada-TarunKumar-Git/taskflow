@@ -5,7 +5,10 @@ import com.example.taskflow.application.usecase.TaskCommandUseCase;
 import com.example.taskflow.presentation.mapper.TaskRequestMapper;
 import com.example.taskflow.presentation.request.CreateTaskRequest;
 import com.example.taskflow.presentation.request.UploadTaskRequest;
+import com.example.taskflow.presentation.response.CreateTaskResponseDto;
+import com.example.taskflow.presentation.response.RetryTaskResponseDto;
 import com.example.taskflow.presentation.response.TaskResponseDto;
+import com.example.taskflow.presentation.response.UploadResponseDto;
 import com.example.taskflow.shared.response.APIResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,10 +31,9 @@ public class TaskCommandController {
 
     @Operation(summary = "Create tasks", description = "Task creation with type, priority")
     @ApiResponse(responseCode = "201", description = "Task created successfully")
-    @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<APIResponse<TaskResponseDto>> createTask(@Valid @RequestBody CreateTaskRequest request) {
-        TaskResponseDto response = taskCommandUseCase.createTask(TaskRequestMapper.toCreateCommand(request));
+    public ResponseEntity<APIResponse<CreateTaskResponseDto>> createTask(@Valid @RequestBody CreateTaskRequest request) {
+        CreateTaskResponseDto response = taskCommandUseCase.createTask(TaskRequestMapper.toCreateCommand(request));
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(APIResponse.success("Task created successfully", response));
@@ -40,11 +42,11 @@ public class TaskCommandController {
     @Operation(summary = "Upload task", description = "Create task and upload CSV file for async processing")
     @ApiResponse(responseCode = "201", description = "Task uploaded successfully")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<APIResponse<TaskResponseDto>> uploadFile(
+    public ResponseEntity<APIResponse<UploadResponseDto>> uploadFile(
             @Valid @ModelAttribute UploadTaskRequest request) {
         UploadTaskCommand command = TaskRequestMapper.toUploadCommand(request);
 
-        TaskResponseDto response = taskCommandUseCase.uploadTask(command, request.file());
+        UploadResponseDto response = taskCommandUseCase.uploadTask(command, request.file());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(APIResponse.success("Task uploaded successfully", response));
@@ -52,13 +54,12 @@ public class TaskCommandController {
 
     @Operation(summary = "Retry task", description = "Retry the permanently failed task with id")
     @ApiResponse(responseCode = "200", description = "Task re-tried successfully and moved to queued")
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{taskId}/retry", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<APIResponse<TaskResponseDto>> retryTask(
+    public ResponseEntity<APIResponse<RetryTaskResponseDto>> retryTask(
             @PathVariable Long taskId,
             @RequestPart("file") MultipartFile file
     ) {
-        TaskResponseDto response = taskCommandUseCase.reProcessFailedTask(taskId,file);
+        RetryTaskResponseDto response = taskCommandUseCase.reProcessFailedTask(taskId,file);
         return ResponseEntity.ok(APIResponse.success("Task re-tried successfully", response));
     }
 }

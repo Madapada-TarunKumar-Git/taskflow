@@ -9,7 +9,7 @@ import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.domain.enums.TaskType;
 import com.example.taskflow.domain.model.Task;
 import com.example.taskflow.domain.repository.TaskRepository;
-import com.example.taskflow.presentation.response.TaskResponseDto;
+import com.example.taskflow.presentation.response.UploadResponseDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -69,9 +69,7 @@ public class TaskWorkFlowIntegrationTest {
                 List.of()
         ));
 
-        TaskResponseDto responseDto = taskCommandUseCase.uploadTask(command, file);
-
-        Long taskId = responseDto.taskId();
+        Long taskId = taskCommandUseCase.uploadTask(command, file).taskId();
 
         Task task = taskRepository.findById(taskId).orElseThrow();
 

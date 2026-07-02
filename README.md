@@ -5,58 +5,60 @@
 [![Build Status](https://img.shields.io/github/actions/workflow/status/Madapada-TarunKumar-Git/taskflow/deploy.yml?branch=main)](https://github.com/Madapada-TarunKumar-Git/taskflow/actions)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A robust, scalable **task management and processing system** built with **Spring Boot 3.5** and **Java 21**. TaskFlow provides enterprise-grade features for managing asynchronous tasks, including user authentication with JWT, task scheduling, CSV file processing, and comprehensive audit logging.
+A robust, scalable **task management and processing system** built with **Spring Boot 3.5** and **Java 21**. TaskFlow
+provides enterprise-grade features for managing asynchronous tasks, including user authentication with JWT, task
+scheduling, CSV file processing, and comprehensive audit logging.
 
 ## 🎯 Features
 
 - **Task Management**
-  - Create, read, update, and delete tasks with multiple priority levels
-  - Support for diverse task types: Customer Import, Bill Processing, XML Import, Report Generation
-  - Real-time task status tracking (Created, In Progress, Completed, Failed, Retry)
-  - Automatic retry mechanism with configurable limits
+    - Create, read, update, and delete tasks with multiple priority levels
+    - Support for diverse task types: Customer Import, Bill Processing, XML Import, Report Generation
+    - Real-time task status tracking (Created, In Progress, Completed, Failed, Retry)
+    - Automatic retry mechanism with configurable limits
 
 - **File Processing**
-  - CSV file upload and validation
-  - Customer data import with BOM (Byte Order Mark) handling
-  - Asynchronous batch processing with progress tracking
-  - Success and failure record metrics
+    - CSV file upload and validation
+    - Customer data import with BOM (Byte Order Mark) handling
+    - Asynchronous batch processing with progress tracking
+    - Success and failure record metrics
 
 - **User Authentication & Security**
-  - JWT (JSON Web Token) based authentication
-  - Role-based access control (User, Admin roles)
-  - Password encryption using BCrypt
-  - Secure token expiry (15 minutes default)
-  - Request validation and exception handling
+    - JWT (JSON Web Token) based authentication
+    - Role-based access control (User, Admin roles)
+    - Password encryption using BCrypt
+    - Secure token expiry (15 minutes default)
+    - Request validation and exception handling
 
 - **Task Scheduling**
-  - Configurable task scheduler with profile-specific delays
-  - Automatic background job processing
-  - Docker-optimized scheduler configuration
+    - Configurable task scheduler with profile-specific delays
+    - Automatic background job processing
+    - Docker-optimized scheduler configuration
 
 - **Audit & Monitoring**
-  - Complete task audit trail with timestamps
-  - Track all task actions and state changes
-  - Request/response logging
-  - Spring Actuator endpoints for health checks
+    - Complete task audit trail with timestamps
+    - Track all task actions and state changes
+    - Request/response logging
+    - Spring Actuator endpoints for health checks
 
 - **API Documentation**
-  - Interactive Swagger UI powered by SpringDoc OpenAPI
-  - Comprehensive endpoint documentation
-  - Real-time API testing capabilities
+    - Interactive Swagger UI powered by SpringDoc OpenAPI
+    - Comprehensive endpoint documentation
+    - Real-time API testing capabilities
 
 ## 📋 Tech Stack
 
-| Component | Technology | Version |
-|-----------|------------|---------|
-| **Language** | Java | 21 |
-| **Framework** | Spring Boot | 3.5.14 |
-| **Database** | PostgreSQL | Latest |
-| **Security** | Spring Security + JWT | JJWT 0.13.0 |
-| **API Docs** | SpringDoc OpenAPI | 2.8.16 |
-| **Data Processing** | Apache Commons CSV | 1.10.0 |
-| **ORM** | Spring Data JPA | Included |
-| **Build Tool** | Maven | 3.9 |
-| **Containerization** | Docker | Latest |
+| Component            | Technology            | Version     |
+|----------------------|-----------------------|-------------|
+| **Language**         | Java                  | 21          |
+| **Framework**        | Spring Boot           | 3.5.14      |
+| **Database**         | PostgreSQL            | Latest      |
+| **Security**         | Spring Security + JWT | JJWT 0.13.0 |
+| **API Docs**         | SpringDoc OpenAPI     | 2.8.16      |
+| **Data Processing**  | Apache Commons CSV    | 1.10.0      |
+| **ORM**              | Spring Data JPA       | Included    |
+| **Build Tool**       | Maven                 | 3.9         |
+| **Containerization** | Docker                | Latest      |
 
 ## 🚀 Installation & Setup
 
@@ -87,8 +89,8 @@ DB_PASSWORD=your_secure_password
 # JWT Secret (minimum 256 bits for HS256)
 SECRET=your_super_secret_key_with_minimum_32_characters_length
 
-# Application Profile (dev, docker, prod)
-PROFILE=dev
+# Application Profile (local, dev, docker, prod)
+PROFILE=local
 ```
 
 ### Step 3: Database Setup
@@ -130,16 +132,17 @@ docker-compose up -d
 ```
 
 This will:
+
 - Build the TaskFlow application image
 - Create and start the container
 - Mount the `uploads/` directory for file storage
-- Expose the API on `http://localhost:7600`
+- Expose the API on `http://localhost:7600/tasks`
 
 ### Step 5: Verify Installation
 
 ```bash
 # Check API health
-curl -X GET http://localhost:7600/actuator/health
+curl -X GET http://localhost:7600/tasks/actuator/health
 
 # Access Swagger UI
 # Navigate to: http://localhost:7600/swagger-ui.html
@@ -152,40 +155,55 @@ curl -X GET http://localhost:7600/actuator/health
 **Register a New User:**
 
 ```bash
-curl -X POST http://localhost:7600/api/v1/auth/register \
-  -H "Content-Type: application/json" \
+  curl -X 'POST' \
+  'http://localhost:7600/tasks/api/auth/register' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
   -d '{
-    "username": "john_doe",
-    "email": "john@example.com",
-    "password": "SecurePass123!"
-  }'
+  "username": "john_doe",
+    "password": "SecurePass123!",
+    "role": ["ROLE_USER"]
+}'
 ```
 
 **Response:**
+
 ```json
 {
-  "message": "User registered successfully",
-  "userId": "123e4567-e89b-12d3-a456-426614174000"
+  "success": true,
+  "message": "string",
+  "data": {
+    "userId": 1,
+    "username": "john_doe",
+    "role": "ROLE_USER"
+  },
+  "timestamp": "2026-07-01T11:30:52.056Z"
 }
 ```
 
 **Login:**
 
 ```bash
-curl -X POST http://localhost:7600/api/v1/auth/login \
-  -H "Content-Type: application/json" \
+  curl -X 'POST' \
+  'http://localhost:7600/tasks/api/auth/login' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
   -d '{
     "username": "john_doe",
     "password": "SecurePass123!"
-  }'
+}'
 ```
 
 **Response:**
+
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "expiresIn": 900,
-  "tokenType": "Bearer"
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiJ9........"
+  },
+  "timestamp": "2026-06-30T13:25:38.831533300Z"
 }
 ```
 
@@ -194,7 +212,8 @@ curl -X POST http://localhost:7600/api/v1/auth/login \
 **Create a Task:**
 
 ```bash
-curl -X POST http://localhost:7600/api/v1/tasks \
+curl -X 'POST' \
+  'http://localhost:7600/tasks/api/v1/tasks' \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -203,43 +222,43 @@ curl -X POST http://localhost:7600/api/v1/tasks \
     "taskType": "CUSTOMER_IMPORT",
     "priority": "HIGH"
   }'
+  
 ```
 
 **Response:**
+
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "taskName": "Customer Import Q3",
-  "status": "CREATED",
-  "priority": "HIGH",
-  "createdAt": "2024-07-01T10:30:00Z",
-  "createdBy": "john_doe"
+  "success": true,
+  "message": "Task created successfully",
+  "data": {
+    "taskId": 1,
+    "taskName": "Customer Import Q3",
+    "description": "Customer import",
+    "taskType": "CUSTOMER_IMPORT",
+    "status": "CREATED",
+    "priority": "LOW",
+    "createdBy": "john_doe",
+    "createdAt": "2026-07-01T12:42:16.716628200Z"
+  },
+  "timestamp": "2026-07-01T12:42:16.856607500Z"
 }
 ```
 
 **Fetch All Tasks (Paginated):**
 
 ```bash
-curl -X GET "http://localhost:7600/api/v1/tasks?page=0&size=10&sort=createdAt,desc" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+  curl -X 'GET' \
+  'http://localhost:7600/tasks/api/v1/tasks?page=0&size=10&sortBy=createdAt&direction=desc' \
+  -H 'Authorization: Bearer YOUR_JWT_TOKEN'
 ```
 
-**Get Task Details:**
+**Get Task Details with ID:**
 
 ```bash
-curl -X GET http://localhost:7600/api/v1/tasks/{taskId} \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
-**Update Task Status:**
-
-```bash
-curl -X PATCH http://localhost:7600/api/v1/tasks/{taskId}/status \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "status": "IN_PROGRESS"
-  }'
+curl -X 'GET' \
+  'http://localhost:7600/tasks/api/v1/tasks/{taskId}' \
+  -H 'Authorization: Bearer YOUR_JWT_TOKEN'
 ```
 
 ### 3. File Upload & Processing
@@ -247,12 +266,19 @@ curl -X PATCH http://localhost:7600/api/v1/tasks/{taskId}/status \
 **Upload CSV File for Processing:**
 
 ```bash
-curl -X POST http://localhost:7600/api/v1/tasks/{taskId}/upload \
+curl -X 'POST' \
+  'http://localhost:7600/tasks/api/v1/tasks/upload' \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -F "file=@customers.csv"
+  -H 'Content-Type: multipart/form-data' \
+  -F 'taskName=Customer Import' \
+  -F 'description=Import customer details' \
+  -F 'taskType=CUSTOMER_IMPORT' \
+  -F 'priority=MEDIUM' \
+  -F 'file=@customerdata.csv;type=text/csv'
 ```
 
 **Expected CSV Format:**
+
 ```csv
 customerName,email,phone,country
 John Smith,john@example.com,+1-555-0101,USA
@@ -260,53 +286,88 @@ Jane Doe,jane@example.com,+1-555-0102,USA
 ```
 
 **Response:**
+
 ```json
 {
-  "taskId": "550e8400-e29b-41d4-a716-446655440000",
-  "fileName": "customers.csv",
-  "totalRecords": 1000,
-  "successRecords": 985,
-  "failedRecords": 15,
-  "status": "IN_PROGRESS"
+  "success": true,
+  "message": "Task uploaded successfully",
+  "data": {
+    "taskId": 1,
+    "taskName": "Customer Import",
+    "description": "Import customer details",
+    "taskType": "CUSTOMER_IMPORT",
+    "status": "QUEUED",
+    "priority": "MEDIUM",
+    "uploadedBy": "john_doe",
+    "uploadAt": "2026-07-01T13:35:41.177004Z"
+  },
+  "timestamp": "2026-07-01T13:35:41.225381100Z"
 }
 ```
 
 ### 4. Task Audit Trail
 
-**View Task Audit History:**
+**View Task Audit History:** `*ADMIN`
 
 ```bash
-curl -X GET http://localhost:7600/api/v1/tasks/{taskId}/audit \
+curl -X 'GET' \
+  'http://localhost:7600/tasks/api/v1/tasks/37/audits' \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
 **Response:**
+
 ```json
-[
-  {
-    "id": "audit-123",
-    "taskId": "550e8400-e29b-41d4-a716-446655440000",
-    "action": "TASK_CREATED",
-    "previousStatus": null,
-    "newStatus": "CREATED",
-    "timestamp": "2024-07-01T10:30:00Z"
-  },
-  {
-    "id": "audit-124",
-    "taskId": "550e8400-e29b-41d4-a716-446655440000",
-    "action": "TASK_STARTED",
-    "previousStatus": "CREATED",
-    "newStatus": "IN_PROGRESS",
-    "timestamp": "2024-07-01T10:35:00Z"
-  }
-]
+{
+  "success": true,
+  "message": "Task audit history retrieved successfully",
+  "data": [
+    {
+      "auditId": 1,
+      "action": "FILE_UPLOADED",
+      "fromStatus": "CREATED",
+      "toStatus": "FILE_UPLOADED",
+      "message": "File Uploaded",
+      "performedBy": "admin",
+      "createdAt": "2026-07-01T14:14:41.156665800Z"
+    },
+    {
+      "auditId": 2,
+      "action": "TASK_QUEUED",
+      "fromStatus": "FILE_UPLOADED",
+      "toStatus": "QUEUED",
+      "message": "Task Queued for processing",
+      "performedBy": "admin",
+      "createdAt": "2026-07-01T14:14:41.156665800Z"
+    },
+    {
+      "auditId": 3,
+      "action": "PROCESSING_STARTED",
+      "fromStatus": "QUEUED",
+      "toStatus": "PROCESSING",
+      "message": "Claimed for processing",
+      "performedBy": "SYSTEM",
+      "createdAt": "2026-07-01T14:14:41.156665800Z"
+    },
+    {
+      "auditId": 4,
+      "action": "TASK_COMPLETED",
+      "fromStatus": "PROCESSING",
+      "toStatus": "COMPLETED",
+      "message": "Processing completed",
+      "performedBy": "SYSTEM",
+      "createdAt": "2026-07-01T14:14:41.156665800Z"
+    }
+  ],
+  "timestamp": "2026-07-01T14:14:41.163665Z"
+}
 ```
 
 ## ⚙️ Configuration
 
 ### Application Properties
 
-Create `application-dev.yml` or `application-docker.yml` in `src/main/resources/`:
+Create `application-local.yml` `application-dev.yml` or `application-docker.yml` in `src/main/resources/`:
 
 ```yaml
 spring:
@@ -321,16 +382,14 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
 server:
   port: 7600
   servlet:
-    context-path: /
-  compression:
-    enabled: true
+    context-path: /tasks/
 
 jwt:
   secret: ${SECRET}
@@ -340,7 +399,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,metrics
   endpoint:
     health:
       show-details: always
@@ -352,19 +411,18 @@ springdoc:
 
 app:
   scheduler:
-    delay: 5000  # Task processing delay in milliseconds
-    fixed-rate: 30000  # Fixed rate between task processing cycles
+    delay: 60000  # Task processing delay in milliseconds
 ```
 
 ### Environment Variables
 
-| Variable | Purpose | Default | Example |
-|----------|---------|---------|---------|
-| `SPRING_PROFILES_ACTIVE` | Active profile (dev, docker, prod) | dev | docker |
-| `SPRING_DATASOURCE_URL` | Database connection URL | - | jdbc:postgresql://localhost:5432/taskflow_db |
-| `SPRING_DATASOURCE_USERNAME` | DB username | - | postgres |
-| `SPRING_DATASOURCE_PASSWORD` | DB password | - | secure_pass |
-| `SECRET` | JWT secret key | - | super_secret_key_32_chars_min |
+| Variable                 | Purpose                                   | Default | Example                                      |
+|--------------------------|-------------------------------------------|---------|----------------------------------------------|
+| `SPRING_PROFILES_ACTIVE` | Active profile (local, dev, docker, prod) | local   | local                                        |
+| `DB_URL`                 | Database connection URL                   | -       | jdbc:postgresql://localhost:5432/taskflow_db |
+| `DB_USERNAME`            | DB username                               | -       | postgres                                     |
+| `DB_PASSWORD`            | DB password                               | -       | secure_pass                                  |
+| `SECRET`                 | JWT secret key                            | -       | super_secret_key_32_chars_min                |
 
 ## 📁 Architecture Overview
 
@@ -396,6 +454,7 @@ taskflow/
 ├── src/test/java/             # Unit & Integration Tests
 ├── src/main/resources/
 │   ├── application.yml        # Default configuration
+│   ├── application-local.yml  # Local profile
 │   ├── application-dev.yml    # Development profile
 │   └── application-docker.yml # Docker profile
 ├── pom.xml                    # Maven configuration
@@ -405,13 +464,13 @@ taskflow/
 
 ### Key Packages
 
-| Package | Responsibility |
-|---------|-----------------|
-| **presentation** | REST API endpoints, request/response handling |
-| **application** | Business logic, use cases, validation, DTOs |
-| **domain** | Core business entities, rules, exceptions |
-| **infrastructure** | Security, database, external integrations |
-| **shared** | Global exceptions, utilities, responses |
+| Package            | Responsibility                                |
+|--------------------|-----------------------------------------------|
+| **presentation**   | REST API endpoints, request/response handling |
+| **application**    | Business logic, use cases, validation, DTOs   |
+| **domain**         | Core business entities, rules, exceptions     |
+| **infrastructure** | Security, database, external integrations     |
+| **shared**         | Global exceptions, utilities, responses       |
 
 ## 🧪 Testing
 
@@ -420,9 +479,6 @@ taskflow/
 ```bash
 # Run all tests
 ./mvnw test
-
-# Run tests with coverage
-./mvnw test jacoco:report
 
 # Run specific test class
 ./mvnw test -Dtest=TaskCommandServiceTest
@@ -434,36 +490,38 @@ taskflow/
 ### Test Coverage
 
 The project includes:
+
 - **Unit Tests**: Service layer logic, validators, mappers
 - **Integration Tests**: Task scheduler, repository operations, API endpoints
 - **Test Dependencies**:
-  - JUnit 5
-  - Mockito for mocking
-  - Spring Boot Test
-  - H2 Database (in-memory for tests)
-  - Awaitility (for async testing)
+    - JUnit 5
+    - Mockito for mocking
+    - Spring Boot Test
+    - H2 Database (in-memory for tests)
+    - Awaitility (for async testing)
 
 ### Example Test
 
 ```java
+
 @SpringBootTest
 @ActiveProfiles("test")
 public class TaskCommandServiceTest {
-    
+
     @Autowired
     private TaskCommandService taskCommandService;
-    
+
     @Test
     public void testCreateTask() {
         // Arrange
         CreateTaskRequest request = new CreateTaskRequest(
-            "Test Task", "Description", 
-            TaskType.CUSTOMER_IMPORT, TaskPriority.HIGH
+                "Test Task", "Description",
+                TaskType.CUSTOMER_IMPORT, TaskPriority.HIGH
         );
-        
+
         // Act
         TaskResponseDto result = taskCommandService.createTask(request);
-        
+
         // Assert
         assertNotNull(result.getId());
         assertEquals("Test Task", result.getTaskName());
@@ -488,9 +546,9 @@ docker build -t taskflow:latest .
 docker run -d \
   --name taskflow \
   -p 7600:7600 \
-  -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/taskflow_db \
-  -e SPRING_DATASOURCE_USERNAME=postgres \
-  -e SPRING_DATASOURCE_PASSWORD=password \
+  -e DB_URL=jdbc:postgresql://postgres:5432/taskflow_db \
+  -e DB_USERNAME=postgres \
+  -e DB_PASSWORD=password \
   -e SECRET=your_secret_key \
   -e SPRING_PROFILES_ACTIVE=docker \
   -v taskflow-uploads:/app/uploads \
@@ -531,16 +589,16 @@ spec:
         app: taskflow
     spec:
       containers:
-      - name: taskflow
-        image: taskflow:latest
-        ports:
-        - containerPort: 7600
-        env:
-        - name: SPRING_DATASOURCE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: taskflow-config
-              key: db-url
+        - name: taskflow
+          image: taskflow:latest
+          ports:
+            - containerPort: 7600
+          env:
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-config
+                  key: db-url
 ```
 
 ### Cloud Deployment (AWS EC2)
@@ -548,6 +606,7 @@ spec:
 **Via GitHub Actions:**
 
 The project includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that:
+
 1. Builds the application on push to `main`
 2. Runs all tests
 3. Deploys to AWS EC2 instance
@@ -560,7 +619,7 @@ The project includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) 
 ssh -i "your-key.pem" ec2-user@your-ec2-ip
 
 # Pull latest code
-cd /app/taskflow
+cd ~/taskflow-app/taskflow
 git pull origin main
 
 # Build and run
@@ -579,6 +638,7 @@ git checkout -b feature/your-feature-name
 ```
 
 Use descriptive branch names:
+
 - `feature/add-email-notifications`
 - `bugfix/fix-task-status-update`
 - `docs/update-api-docs`
@@ -598,6 +658,7 @@ git commit -m "feat: add email notifications for task completion"
 ```
 
 Follow commit conventions:
+
 - `feat:` New feature
 - `fix:` Bug fix
 - `docs:` Documentation
@@ -616,23 +677,28 @@ git push origin feature/your-feature-name
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Related Issues
+
 Closes #issue_number
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests added
 - [ ] Integration tests added
 - [ ] All tests pass
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Documentation updated
 - [ ] No new warnings generated
@@ -647,6 +713,7 @@ Closes #issue_number
 ### GitHub Actions CI/CD Pipeline
 
 The project includes automated:
+
 - **Code Building**: Maven build
 - **Unit Testing**: All test suites
 - **Integration Testing**: Full system tests
@@ -659,10 +726,11 @@ View workflow: `.github/workflows/deploy.yml`
 ### Health Check
 
 ```bash
-curl http://localhost:7600/actuator/health
+curl http://localhost:7600/tasks/actuator/health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "UP",
@@ -686,19 +754,20 @@ curl http://localhost:7600/actuator/health
 
 ```bash
 # View application info
-curl http://localhost:7600/actuator/info
+curl http://localhost:7600/tasks/actuator/info
 
 # View metrics
-curl http://localhost:7600/actuator/prometheus
+curl http://localhost:7600/tasks/actuator/metrics
 ```
 
 ## 📝 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **IT License** - see the [LICENSE](LICENSE) file for details.
 
-### MIT License Summary
+### IT License Summary
 
 You are free to:
+
 - ✅ Use, modify, and distribute this software
 - ✅ Use it for commercial purposes
 - ✅ Include in proprietary applications
@@ -727,16 +796,17 @@ Found a bug? Have a suggestion?
 
 1. Check [existing issues](https://github.com/Madapada-TarunKumar-Git/taskflow/issues)
 2. Create a [new issue](https://github.com/Madapada-TarunKumar-Git/taskflow/issues/new) with:
-   - Clear description
-   - Steps to reproduce (for bugs)
-   - Expected vs actual behavior
-   - Environment details (OS, Java version, etc.)
+    - Clear description
+    - Steps to reproduce (for bugs)
+    - Expected vs actual behavior
+    - Environment details (OS, Java version, etc.)
 
 ## 📞 Support
 
 For questions or support:
+
 - 💬 Open a GitHub Discussion
-- 📧 Contact: tarunkumar.madapada@gmail.com
+- 📧 Contact: support.mail@example.com
 - 🔍 Search existing [Issues](https://github.com/Madapada-TarunKumar-Git/taskflow/issues)
 
 ---

@@ -1,6 +1,5 @@
 package com.example.taskflow.presentation.controller;
 
-import com.example.taskflow.application.dto.AuditResponse;
 import com.example.taskflow.application.dto.StatusResponse;
 import com.example.taskflow.application.usecase.TaskAuditQueryUseCase;
 import com.example.taskflow.application.usecase.TaskQueryUseCase;
@@ -17,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
@@ -71,14 +68,5 @@ public class TaskQueryController {
     public ResponseEntity<APIResponse<StatusResponse>> getStatistics() {
         StatusResponse response = taskQueryUseCase.getTaskStatistics();
         return ResponseEntity.ok(APIResponse.success("Statistics of tasks retrieved successfully", response));
-    }
-
-    @Operation(summary = "Task audits", description = "Retrieve task flow by id")
-    @ApiResponse(responseCode = "200", description = "Task audit history retrieved successfully")
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/{taskId}/audits")
-    public ResponseEntity<APIResponse<List<AuditResponse>>> getTaskAudits(@PathVariable Long taskId) {
-        List<AuditResponse> response = taskAuditQueryUseCase.getTaskAudits(taskId);
-        return ResponseEntity.ok(APIResponse.success("Task audit history retrieved successfully", response));
     }
 }

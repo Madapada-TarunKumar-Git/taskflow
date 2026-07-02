@@ -33,8 +33,8 @@ build/
 .vscode/
 
 #Logs
-/logs
-*.log
+/logs/tasks.log
+/logs/tasks.log.*
 /uploads
 *.csv
 .env

@@ -2,16 +2,18 @@ package com.example.taskflow.application.usecase;
 
 import com.example.taskflow.application.command.CreateTaskCommand;
 import com.example.taskflow.application.command.UploadTaskCommand;
-import com.example.taskflow.presentation.response.TaskResponseDto;
+import com.example.taskflow.presentation.response.CreateTaskResponseDto;
+import com.example.taskflow.presentation.response.RetryTaskResponseDto;
+import com.example.taskflow.presentation.response.UploadResponseDto;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface TaskCommandUseCase {
     // for write operation services
-    TaskResponseDto createTask(CreateTaskCommand command);
+    CreateTaskResponseDto createTask(CreateTaskCommand command);
 
-    TaskResponseDto uploadTask(UploadTaskCommand command, MultipartFile file);
+    UploadResponseDto uploadTask(UploadTaskCommand command, MultipartFile file);
 
     void processTask(Long taskId);
 
-    TaskResponseDto reProcessFailedTask(Long taskId, MultipartFile file);
+    RetryTaskResponseDto reProcessFailedTask(Long taskId, MultipartFile file);
 }
