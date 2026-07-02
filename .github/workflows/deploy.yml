@@ -68,7 +68,21 @@ jobs:
           script: |
             cd ~/taskflow-app/taskflow
             
-            git pull origin main
             docker compose pull
             docker compose up -d --remove-orphans
             docker image prune -f
+            
+            echo "Waiting for application to start..."
+
+            for i in {1..12}; do
+                if curl --silent --fail http://localhost:7600/actuator/health; then
+                    echo "Application is UP!"
+                    exit 0
+                fi
+
+                echo "Waiting..."
+                sleep 5
+            done
+
+            echo "Application failed to start."
+            exit 1
