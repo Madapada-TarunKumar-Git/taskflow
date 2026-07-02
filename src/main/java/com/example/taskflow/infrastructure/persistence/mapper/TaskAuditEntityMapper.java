@@ -28,8 +28,8 @@ public final class TaskAuditEntityMapper {
                 entity.getAction(),
                 entity.getFromStatus(),
                 entity.getToStatus(),
-                entity.getPerformedBy(),
-                entity.getMessage()
+                entity.getMessage(),
+                entity.getPerformedBy()
         );
         audit.setId(entity.getId());
 

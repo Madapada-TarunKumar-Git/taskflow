@@ -6,6 +6,7 @@ import com.example.taskflow.domain.model.TaskAudit;
 public final class TaskAuditMapper {
     public static AuditResponse toAuditResponse(TaskAudit taskAudit) {
         return new AuditResponse(
+                taskAudit.getId(),
                 taskAudit.getAction(),
                 taskAudit.getFromStatus(),
                 taskAudit.getToStatus(),

@@ -11,6 +11,10 @@ on:
       - "pom.xml"
       - ".github/workflows/**"
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

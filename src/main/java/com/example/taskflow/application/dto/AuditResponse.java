@@ -6,6 +6,7 @@ import com.example.taskflow.domain.enums.TaskStatus;
 import java.time.Instant;
 
 public record AuditResponse(
+        Long auditId,
         TaskAuditAction action,
         TaskStatus fromStatus,
         TaskStatus toStatus,

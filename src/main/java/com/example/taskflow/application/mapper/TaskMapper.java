@@ -1,7 +1,10 @@
 package com.example.taskflow.application.mapper;
 
+import com.example.taskflow.presentation.response.CreateTaskResponseDto;
+import com.example.taskflow.presentation.response.RetryTaskResponseDto;
 import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.domain.model.Task;
+import com.example.taskflow.presentation.response.UploadResponseDto;
 import com.example.taskflow.shared.response.PageResponse;
 import org.springframework.data.domain.Page;
 
@@ -26,6 +29,44 @@ public final class TaskMapper {
                 task.getProcessingStartedAt(),
                 task.getProcessingCompletedAt(),
                 calculateProcessingDuration(task)
+        );
+    }
+
+    public static CreateTaskResponseDto toCreateTaskResponseDto(Task task){
+        return new CreateTaskResponseDto(
+                task.getId(),
+                task.getTaskName(),
+                task.getDescription(),
+                task.getTaskType(),
+                task.getStatus(),
+                task.getPriority(),
+                task.getCreatedBy(),
+                task.getCreatedAt()
+        );
+    }
+
+    public static UploadResponseDto toUploadResponseDto(Task task){
+        return new UploadResponseDto(
+                task.getId(),
+                task.getTaskName(),
+                task.getDescription(),
+                task.getTaskType(),
+                task.getStatus(),
+                task.getPriority(),
+                task.getCreatedBy(),
+                task.getCreatedAt()
+        );
+    }
+
+    public static RetryTaskResponseDto toRetryTaskResponseDto(Task task){
+        return new RetryTaskResponseDto(
+                task.getId(),
+                task.getTaskName(),
+                task.getTaskType(),
+                task.getStatus(),
+                task.getPriority(),
+                task.getCreatedBy(),
+                task.getCreatedAt()
         );
     }
 

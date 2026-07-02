@@ -15,7 +15,10 @@ import com.example.taskflow.domain.exception.InvalidTaskStateException;
 import com.example.taskflow.domain.exception.TaskNotFoundException;
 import com.example.taskflow.domain.model.Task;
 import com.example.taskflow.domain.repository.TaskRepository;
+import com.example.taskflow.presentation.response.CreateTaskResponseDto;
+import com.example.taskflow.presentation.response.RetryTaskResponseDto;
 import com.example.taskflow.presentation.response.TaskResponseDto;
+import com.example.taskflow.presentation.response.UploadResponseDto;
 import com.example.taskflow.shared.util.SecurityUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,7 +80,7 @@ public class TaskCommandServiceTest {
         when(securityUtil.getUsername()).thenReturn("tester");
         when(taskRepository.save(any(Task.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        TaskResponseDto responseDto = taskCommandService.createTask(command);
+        CreateTaskResponseDto responseDto = taskCommandService.createTask(command);
 
         assertEquals("Import test", responseDto.taskName());
         assertEquals(TaskStatus.CREATED, responseDto.status());
@@ -110,13 +113,13 @@ public class TaskCommandServiceTest {
         when(fileStoragePort.storeFile(file)).thenReturn(result);
         when(taskRepository.save(any(Task.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        TaskResponseDto responseDto = taskCommandService.uploadTask(command, file);
+        UploadResponseDto responseDto = taskCommandService.uploadTask(command, file);
 
         assertNotNull(responseDto);
         assertEquals("Customer upload", responseDto.taskName());
         assertEquals(TaskStatus.QUEUED, responseDto.status());
         assertEquals("customer.csv",result.originalFileName());
-        assertEquals("tester", responseDto.createdBy());
+        assertEquals("tester", responseDto.uploadedBy());
 
         verify(taskRepository).save(any(Task.class));
         verify(taskFileValidator).validate(file, command.taskType());
@@ -308,7 +311,7 @@ public class TaskCommandServiceTest {
         when(fileStoragePort.storeFile(file)).thenReturn(result);
         when(taskRepository.save(any(Task.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        TaskResponseDto response = taskCommandService.reProcessFailedTask(1L, file);
+        RetryTaskResponseDto response = taskCommandService.reProcessFailedTask(1L, file);
 
         assertEquals(TaskStatus.QUEUED, task.getStatus());
         assertEquals("customer.csv", task.getOriginalFileName());
