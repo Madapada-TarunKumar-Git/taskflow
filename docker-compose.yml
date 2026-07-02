@@ -14,7 +14,8 @@ services:
 #      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
 
   taskflow-app:
-    build: .
+#    build: .
+    image: ghcr.io/madapada-tarunkumar-git//taskflow:latest
     container_name: taskflow-app
     restart: always
     ports:
