@@ -72,6 +72,7 @@ jobs:
             
             docker compose pull
             docker compose up -d --remove-orphans
+            docker ps --format "table {{.Names}}\t{{.Image}}"
             docker image prune -f
             
             echo "Waiting for application to start..."
