@@ -75,7 +75,7 @@ jobs:
             echo "Waiting for application to start..."
 
             for i in {1..12}; do
-                if curl --silent --fail http://localhost:7600/actuator/health; then
+                if curl --silent --fail http://localhost/tasks/actuator/health; then
                     echo "Application is UP!"
                     exit 0
                 fi
