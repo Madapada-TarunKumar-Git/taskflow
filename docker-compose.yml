@@ -15,7 +15,7 @@ services:
 
   taskflow-app:
 #    build: .
-    image: ghcr.io/madapada-tarunkumar-git/taskflow:latest
+    image: ghcr.io/madapada-tarunkumar-git/taskflow:${IMAGE_TAG:-latest}
     container_name: taskflow-app
     restart: always
     ports:

@@ -56,7 +56,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ env.OWNER_LC }}/taskflow:${IMAGE_TAG:-latest}
+            ghcr.io/${{ env.OWNER_LC }}/taskflow:latest
             ghcr.io/${{ env.OWNER_LC }}/taskflow:${{ github.sha }}
 
       - name: Deploy to EC2
