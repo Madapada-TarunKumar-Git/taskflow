@@ -15,13 +15,17 @@ public class AsyncTaskProcessorService {
     @Async("taskProcessingExecutor")
     @Transactional
     public void processTaskAsync(Long taskId) {
-        log.info("Starting async processing for task: {}", taskId);
+        long start = System.currentTimeMillis();
+        log.debug("Running on thread = {}", Thread.currentThread().getName());
+        log.info("Async processing started for taskId = {}", taskId);
         try {
             taskCommandService.processTask(taskId);
-            log.info("Async processed for task: {}", taskId);
+            long duration = System.currentTimeMillis() - start;
+            log.info("Async processing completed for taskId = {} in {} ms", taskId, duration);
         } catch (Exception ex) {
-            log.error("Task processing failure for task: {}", taskId, ex);
+            log.error("Unexpected error occurred while processing taskI = {}", taskId, ex);
+        } finally {
+            log.debug("Async processor finished for taskId = {}", taskId);
         }
-
     }
 }
