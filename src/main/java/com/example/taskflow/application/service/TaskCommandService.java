@@ -20,6 +20,7 @@ import com.example.taskflow.presentation.response.UploadResponseDto;
 import com.example.taskflow.shared.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -92,7 +93,6 @@ public class TaskCommandService implements TaskCommandUseCase {
         task.markAsQueued();
 
         Task savedTask = taskRepository.save(task);
-
         taskAuditService.logTaskEvent(savedTask, TaskAuditAction.FILE_UPLOADED, beforeFileUpload,
                 TaskStatus.FILE_UPLOADED, "File Uploaded", securityUtil.getUsername());
         taskAuditService.logTaskEvent(savedTask, TaskAuditAction.TASK_QUEUED, beforeQueue,

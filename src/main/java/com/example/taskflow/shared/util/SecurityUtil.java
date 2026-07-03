@@ -9,4 +9,7 @@ public class SecurityUtil {
     public String getUsername(){
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
+    public Authentication getAuthentication(){
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
 }
