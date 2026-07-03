@@ -25,6 +25,7 @@ public class RetryScheduleService {
         int reQueuedTasks = 0;
         if (retryTasks.isEmpty()) {
             log.info("No retry pending tasks found");
+            log.info("Retry scheduler cycle completed");
             return;
         }
 
@@ -38,6 +39,6 @@ public class RetryScheduleService {
                 log.warn("Skip retry for task {} because it was modified by another transaction.", task.getId());
             }
         }
-        log.info("Retry scheduler completed. Re-Queued {} task(s).", reQueuedTasks);
+        log.info("Retry scheduler cycle completed. Re-Queued {} task(s).", reQueuedTasks);
     }
 }

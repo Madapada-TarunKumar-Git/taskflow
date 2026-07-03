@@ -27,6 +27,7 @@ public class TaskSchedulerService {
         int submittedTasks = 0;
         if (queuedTasks.isEmpty()) {
             log.info("No tasks in queue");
+            log.info("Task Scheduler cycle finished");
             return;
         }
         log.info("Found {} tasks in queue", queuedTasks.size());
@@ -45,6 +46,6 @@ public class TaskSchedulerService {
             asyncTaskProcessorService.processTaskAsync(task.getId());
             submittedTasks++;
         }
-        log.info("Task scheduler completed. submittedTasks = {}", submittedTasks);
+        log.info("Scheduler cycle completed. submittedTasks = {}", submittedTasks);
     }
 }

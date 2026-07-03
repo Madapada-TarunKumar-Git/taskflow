@@ -50,17 +50,18 @@ public class CustomerCsvProcessingService {
 
                 try {
                     CustomerCsvRecord customer = mapRecord(csvRecord);
-                    System.out.println(customer);
                     validateRecord(customer);
                     successfulRecords++;
+                    log.info("Successfully parsed {} records", csvRecord.size());
                 } catch (Exception ex) {
                     failedRecords++;
-                    errors.add("Row" + totalRecords + ": " + ex.getMessage());
-                    System.out.println(errors);
+                    errors.add("Row " + totalRecords + ": " + ex.getMessage());
+                    log.warn("Total failed records: {}", totalRecords);
                 }
             }
 
         } catch (IOException ex) {
+            log.error("Failed processing csv file = {}", filePath);
             throw new RuntimeException("Failed processing csv file: " + filePath, ex);
         }
         return new TaskProcessingResultDto(
