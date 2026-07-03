@@ -7,28 +7,32 @@ import com.example.taskflow.domain.enums.TaskStatus;
 import com.example.taskflow.presentation.response.TaskResponseDto;
 import com.example.taskflow.shared.response.APIResponse;
 import com.example.taskflow.shared.response.PageResponse;
+import com.example.taskflow.shared.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/tasks")
 @RequiredArgsConstructor
 @Tag(name = "TaskQueryController", description = "Retrieve task details")
 public class TaskQueryController {
     private final TaskQueryUseCase taskQueryUseCase;
-    private final TaskAuditQueryUseCase taskAuditQueryUseCase;
+    private final SecurityUtil securityUtil;
 
     @Operation(summary = "Get tasks by Id", description = "Retrieve detailed information about a task")
     @ApiResponse(responseCode = "200", description = "Task retrieved successfully")
     @GetMapping("/{taskId}")
     public ResponseEntity<APIResponse<TaskResponseDto>> getTaskById(@PathVariable Long taskId) {
+        log.info("Fetching task details. user = {}, taskId = {}", securityUtil.getUsername(), taskId);
         TaskResponseDto response = taskQueryUseCase.getTaskById(taskId);
 
         return ResponseEntity.ok(APIResponse.success("Task retrieved successfully", response));
@@ -54,6 +58,7 @@ public class TaskQueryController {
             @RequestParam(name = "status", required = false)
             TaskStatus status
     ) {
+        log.info("Fetching tasks. page = {}, size {}, status = {}, user = {}", page, size, status, securityUtil.getUsername());
         PageResponse<TaskResponseDto> pageResponse = taskQueryUseCase
                 .getTasks(page, size, sortBy, direction, status);
         return ResponseEntity.ok(
@@ -66,6 +71,7 @@ public class TaskQueryController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/statistics")
     public ResponseEntity<APIResponse<StatusResponse>> getStatistics() {
+        log.info("Statistics requested. user = {}", securityUtil.getUsername());
         StatusResponse response = taskQueryUseCase.getTaskStatistics();
         return ResponseEntity.ok(APIResponse.success("Statistics of tasks retrieved successfully", response));
     }
