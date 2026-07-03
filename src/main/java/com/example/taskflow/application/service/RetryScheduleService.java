@@ -20,19 +20,24 @@ public class RetryScheduleService {
 
     @Scheduled(fixedDelay = 60000) // 60 seconds
     public void retryPendingTasks() {
+        log.info("Retry scheduler started");
         List<Task> retryTasks = taskRepository.findTop100ByStatusOrderByCreatedAtAsc(TaskStatus.RETRY_PENDING);
+        int reQueuedTasks = 0;
+        if (retryTasks.isEmpty()) {
+            log.info("No retry pending tasks found");
+            return;
+        }
 
-        if (retryTasks.isEmpty()) return;
-
-        log.info("Found {} retry pending tasks", retryTasks.size());
+        log.info("Found {} retry pending task(s)", retryTasks.size());
 
         for (Task task : retryTasks) {
             try {
                 retryTaskService.retryTask(task.getId());
+                reQueuedTasks++;
             } catch (ObjectOptimisticLockingFailureException ex) {
-                log.warn("Task {} updated by another transaction: {}", task.getId(),ex.getMessage());
+                log.warn("Skip retry for task {} because it was modified by another transaction.", task.getId());
             }
         }
+        log.info("Retry scheduler completed. Re-Queued {} task(s).", reQueuedTasks);
     }
-
 }

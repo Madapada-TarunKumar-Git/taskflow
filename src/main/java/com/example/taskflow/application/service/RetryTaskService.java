@@ -23,7 +23,7 @@ public class RetryTaskService {
         task.markAsQueued();
         Task savedTask = taskRepository.save(task);
         taskAuditService.logTaskEvent(savedTask, TaskAuditAction.TASK_RE_QUEUED, beforeQueued, savedTask.getStatus(), "Task Re-Queued", "SYSTEM");
-        log.info("Task re-queued for retry: {}", task.getId());
+        log.info("Task {} successfully moved from {} to {}", task.getId(), beforeQueued, savedTask.getStatus());
 
     }
 }

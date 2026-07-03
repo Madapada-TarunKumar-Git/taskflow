@@ -82,6 +82,7 @@ public class CustomerCsvProcessingService {
 
     private void validateRecord(CustomerCsvRecord customer) {
         if (customer.customerName() == null || customer.customerName().isBlank()) {
+            log.error("Customer name is required");
             throw new IllegalArgumentException("Customer name is required");
         }
 
@@ -89,6 +90,7 @@ public class CustomerCsvProcessingService {
                 || customer.email().isBlank()
                 || !customer.email().contains("@")
         ) {
+            log.debug("Invalid email address");
             throw new IllegalArgumentException("Invalid email address");
         }
     }
