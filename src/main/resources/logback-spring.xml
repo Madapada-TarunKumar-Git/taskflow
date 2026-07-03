@@ -12,7 +12,7 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
-                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [${APP_NAME}] %logger{36} - %msg%n
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%X{correlationId}] [%X{username}] %logger{36} - %msg%n
             </pattern>
         </encoder>
     </appender>
@@ -35,7 +35,7 @@
 
         <encoder>
             <pattern>
-                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [${APP_NAME}] %logger{36} - %msg%n
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%X{correlationId}] [%X{username}] %logger{36} - %msg%n
             </pattern>
         </encoder>
 

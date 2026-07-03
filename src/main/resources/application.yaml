@@ -35,7 +35,7 @@ management:
 
 task:
   scheduler:
-    delay: 60000
+    delay: 600000
 
 jwt:
   token:
