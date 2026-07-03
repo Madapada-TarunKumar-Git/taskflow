@@ -5,7 +5,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 server:
@@ -24,14 +24,6 @@ springdoc:
   api-docs:
     path: /api-docs
 
-logging:
-  level:
-    root: INFO
-    org.springframework.security: WARN
-    io.jsonwebtoken: WARN
-  file:
-    name: logs/tasks.log
-
 management:
   endpoints:
     web:
@@ -41,6 +33,9 @@ management:
     health:
       show-details: always
 
+task:
+  scheduler:
+    delay: 60000
 
 jwt:
   token:

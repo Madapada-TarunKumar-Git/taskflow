@@ -9,6 +9,7 @@ import com.example.taskflow.presentation.response.AuthResponse;
 import com.example.taskflow.presentation.response.RegisterResponse;
 import com.example.taskflow.shared.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -24,9 +26,10 @@ public class UserService {
     private final JwtService jwtService;
 
     public RegisterResponse register(RegisterRequest registerRequest) {
-        if (repository.findByUsername(registerRequest.username()).isPresent())
+        if (repository.findByUsername(registerRequest.username()).isPresent()) {
+            log.info("Username {} already exists", registerRequest.username());
             throw new IllegalArgumentException("Username already exists");
-
+        }
         UserEntity entity = new UserEntity();
         entity.setUsername(registerRequest.username());
         entity.setPassword(passwordEncoder.encode(registerRequest.password()));
